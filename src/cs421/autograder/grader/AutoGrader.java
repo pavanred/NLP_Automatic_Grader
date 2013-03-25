@@ -20,6 +20,7 @@ public class AutoGrader {
 		
 		inputfile = new FileInput();		
 		String essayText = inputfile.readInputFile(filepath);
+		//TODO read grades from grades.txt
 		
 		sentences = segmentEssay(essayText);
 		

@@ -13,7 +13,7 @@ public class Main {
 		
 		Essay essay;
 		Score score;
-		String filepath = System.getProperty("user.dir") + "/input/essay.txt";
+		String filepath = System.getProperty("user.dir") + "/TrainingSet/1.txt";
 		
 		AutoGrader grader = new AutoGrader();
 		

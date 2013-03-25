@@ -40,4 +40,5 @@ public class Essay {
 		if(this.sentences == null) return;		
 		this.sentences.add(sentence);
 	}	
+	
 }
