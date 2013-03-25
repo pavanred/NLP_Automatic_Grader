@@ -82,6 +82,12 @@ public class Score {
 		this.wordOrderScore = 0;
 	}
 	
+	/**
+	 * compute the final weighted score based on the syntactic, semantic and essay length 
+	 * parameters and their respective weights	 
+	 * @return the graded score awarded for the evaluated essay
+	 * @author pavan
+	 */
 	public float getFinalScore() {
 		
 		float finalScore = 0.0f;

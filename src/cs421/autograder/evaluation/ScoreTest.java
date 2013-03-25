@@ -44,4 +44,10 @@ public class ScoreTest {
 		assertEquals(2.5, score.getFinalScore(),epsilon);
 	}
 
+	@Test
+	public void finalScoreEmptyTest() {
+		
+		Score score  = new Score();			
+		assertEquals(0, score.getFinalScore(),epsilon);
+	}
 }
