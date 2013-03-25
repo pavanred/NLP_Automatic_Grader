@@ -71,6 +71,17 @@ public class Score {
 		return this.essayLengthScore;
 	}
 
+	public Score(){
+		
+		this.coherenceScore = 0;
+		this.essayLengthScore = 0;
+		this.sentenceFormationScore = 0;
+		this.subjectVerbAgreementScore = 0;
+		this.topicAdherenceScore = 0;
+		this.verbUsageScore = 0;
+		this.wordOrderScore = 0;
+	}
+	
 	public float getFinalScore() {
 		
 		float finalScore = 0.0f;
@@ -87,6 +98,5 @@ public class Score {
 	
 		//rounding to the nearest 0.5
 		return Math.round(finalScore * 2.0f)/2.0f;
-	}	
-	
+	}		
 }
