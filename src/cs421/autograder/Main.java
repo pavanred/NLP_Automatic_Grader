@@ -1,6 +1,9 @@
 package cs421.autograder;
 
-import cs421.autograder.evaluation.Score;
+import java.io.File;
+import java.io.FileNotFoundException;
+
+import cs421.autograder.IO.FileInput;
 import cs421.autograder.grader.AutoGrader;
 import cs421.autograder.grader.Essay;
 
@@ -8,22 +11,38 @@ public class Main {
 
 	/**
 	 * @param args
+	 * @throws FileNotFoundException 
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws FileNotFoundException {
 		
+		FileInput inputfile;
 		Essay essay;
-		Score score;
-		String filepath = System.getProperty("user.dir") + "/TrainingSet/1.txt";
+		String essayText;
+		AutoGrader grader;
+		File[] fileList;
 		
-		AutoGrader grader = new AutoGrader();
+		String trainingSetPath = System.getProperty("user.dir") + "/TrainingSet/";
 		
-		essay = grader.readEssay(filepath);
-		score = grader.evaluate(essay); 
+		File trainingSetDir = new File(trainingSetPath);		
 		
-		float finalScore = score.getFinalScore();
+		//get list of essay files
+		fileList = trainingSetDir.listFiles();
 		
-		//TODO output
-		System.out.println(finalScore);
+		if(fileList.length < 0)
+			throw new FileNotFoundException("No essay files found");
+		
+		inputfile = new FileInput();	
+		grader = new AutoGrader();
+		
+		//loop through every essay in the training set and learn the evaluation scheme
+		for(File file : fileList){
+			
+			essay = new Essay();
+			
+			essayText = inputfile.readInputFile(file.getAbsolutePath());
+			essay.setRawText(essayText);
+			
+			grader.segmentEssay(essay);
+		}
 	}
-
 }

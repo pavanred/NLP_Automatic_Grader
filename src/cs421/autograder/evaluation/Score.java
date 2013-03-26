@@ -82,6 +82,24 @@ public class Score {
 		this.wordOrderScore = 0;
 	}
 	
+	@Override
+	public boolean equals(Object newObject){
+		
+	    if (newObject == null) return false;
+	    if (newObject == this) return true;	    
+	    if (!(newObject instanceof Score))return false;
+	    
+	    Score instance = (Score)newObject;
+	    
+	    return instance.coherenceScore == this.coherenceScore &&
+	    		instance.essayLengthScore == this.essayLengthScore &&
+	    		instance.sentenceFormationScore == this.essayLengthScore &&
+	    		instance.subjectVerbAgreementScore == this.subjectVerbAgreementScore &&
+	    		instance.topicAdherenceScore == this.topicAdherenceScore &&
+	    		instance.verbUsageScore == this.verbUsageScore &&
+	    		instance.wordOrderScore == this.wordOrderScore;
+	}
+	
 	/**
 	 * compute the final weighted score based on the syntactic, semantic and essay length 
 	 * parameters and their respective weights	 

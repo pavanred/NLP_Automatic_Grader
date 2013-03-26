@@ -30,11 +30,11 @@ public class FileInput {
 			
 		} catch (FileNotFoundException e) {
 
-			System.out.println("[Error] Essay file not found");
+			System.out.println("[Error] " + filepath + " not found");
 			
 		} catch (Exception e){
 			
-			System.out.println("[Error] Error reading the essay");
+			System.out.println("[Error] Error reading " + filepath);
 		}	
 		
 		return essayText.toString();

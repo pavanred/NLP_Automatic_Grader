@@ -9,7 +9,7 @@ public class ScoreTest {
 	private float epsilon = 0.0001f;
 	
 	@Test
-	public void finalScoreWithoutRoundingTest() {
+	public void testFinalScoreWithoutRounding() {
 		
 		Score score  = new Score();
 		
@@ -27,7 +27,7 @@ public class ScoreTest {
 	}
 	
 	@Test
-	public void finalScoreWithRoundingTest() {
+	public void testFinalScoreWithRounding() {
 		
 		Score score  = new Score();
 		
@@ -45,7 +45,7 @@ public class ScoreTest {
 	}
 
 	@Test
-	public void finalScoreEmptyTest() {
+	public void testFinalScoreEmpty() {
 		
 		Score score  = new Score();			
 		assertEquals(0, score.getFinalScore(),epsilon);

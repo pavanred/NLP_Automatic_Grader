@@ -6,6 +6,7 @@ import cs421.autograder.evaluation.Score;
 
 public class Essay {
 
+	private String rawText;
 	private ArrayList<String> sentences;
 	private Score essayScore;
 	
@@ -28,6 +29,15 @@ public class Essay {
 	public Essay(){
 		this.sentences = new ArrayList<String>();
 		this.essayScore = new Score();
+		this.rawText = "";
+	}
+	
+	public String getRawText(){
+		return this.rawText;
+	}
+	
+	public void setRawText(String _rawText){
+		this.rawText = _rawText;
 	}
 	
 	/**
@@ -40,5 +50,20 @@ public class Essay {
 		if(this.sentences == null) return;		
 		this.sentences.add(sentence);
 	}	
+	
+	@Override
+	public boolean equals(Object newEssay){
+		
+	    if (newEssay == null) return false;
+	    if (newEssay == this) return true;	    
+	    if (!(newEssay instanceof Essay))return false;
+	    
+	    Essay instance = (Essay)newEssay;
+	    
+	    return instance.essayScore.equals(this.essayScore) &&
+	    		instance.rawText == this.rawText ||
+	    		(this.rawText != "" && this.rawText.equals(instance.getRawText())) &&
+	    		instance.sentences.equals(this.sentences);	    		
+	}
 	
 }
