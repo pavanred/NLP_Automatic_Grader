@@ -22,9 +22,8 @@ public class PosTag {
 	}
 	
 	public PosTag(String _word, PartOfSpeech _pos){
-		System.out.println(word);
+
 		this.word = _word.replaceAll("[^a-zA-Z]","");
-		System.out.println(word);
 		this.pos = _pos;
 	}
 	
