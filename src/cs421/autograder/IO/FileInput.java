@@ -29,11 +29,11 @@ public class FileInput {
 			reader.close();
 			
 		} catch (FileNotFoundException e) {
-
+			e.printStackTrace();
 			System.out.println("[Error] " + filepath + " not found");
 			
 		} catch (Exception e){
-			
+			e.printStackTrace();
 			System.out.println("[Error] Error reading " + filepath);
 		}	
 		

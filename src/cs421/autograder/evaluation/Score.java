@@ -43,7 +43,7 @@ public class Score {
 		this.sentenceFormationScore = score;			
 	}	
 	
-	public int   {		
+	public int getSentenceFormationScore() {		
 		return this.sentenceFormationScore;
 	}
 
