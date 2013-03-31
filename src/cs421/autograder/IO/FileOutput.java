@@ -3,9 +3,9 @@ package cs421.autograder.IO;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.FileNotFoundException;
-
 import com.csvreader.CsvWriter;
+
+import cs421.autograder.evaluation.Score;
 
 public class FileOutput {
 
@@ -15,7 +15,7 @@ public class FileOutput {
 	 * @return scores
 	 * @author girish
 	 */
-	public String readInputFile(String filepath, Score scores) {
+	public void writeOutputFile(String filepath, Score scores) {
         
         boolean alreadyExists = new File(filepath).exists();
         
@@ -40,14 +40,14 @@ public class FileOutput {
         				
         				// write out a new records
       
-        				csvOutput.write(scores.getWordOrderScore());
-              			csvOutput.write(scores.getSubjectVerbAgreementScore());
-              			csvOutput.write(scores.getVerbUsageScore());
-            			csvOutput.write(scores.getSentenceFormationScore());
-              			csvOutput.write(scores.getCoherenceScore());
-            			csvOutput.write(scores.getTopicAdherenceScore());
-                    	csvOutput.write(scores.getEssayLengthScore());
-            			csvOutput.write(scores.getFinalScore());
+        				csvOutput.write(Integer.toString(scores.getWordOrderScore()));
+              			csvOutput.write(Integer.toString(scores.getSubjectVerbAgreementScore()));
+              			csvOutput.write(Integer.toString(scores.getVerbUsageScore()));
+            			csvOutput.write(Integer.toString(scores.getSentenceFormationScore()));
+              			csvOutput.write(Integer.toString(scores.getCoherenceScore()));
+            			csvOutput.write(Integer.toString(scores.getTopicAdherenceScore()));
+                    	csvOutput.write(Integer.toString(scores.getEssayLengthScore()));
+            			csvOutput.write(Float.toString(scores.getFinalScore()));
         				csvOutput.endRecord();
            				csvOutput.close();
         }
