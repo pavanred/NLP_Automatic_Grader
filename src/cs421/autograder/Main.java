@@ -42,7 +42,12 @@ public class Main {
 			essayText = inputfile.readInputFile(file.getAbsolutePath());
 			essay.setRawText(essayText);
 			
-			grader.segmentEssay(essay);
+			
+			
+			//grader.getOpennlpPosTags(essayText.split(" "));
+			grader.getStanfordPosTags(essayText);
+			
+			
 		}
 	}
 }
