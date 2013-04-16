@@ -2,6 +2,8 @@ package cs421.autograder.IO;
 
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
+
 import org.junit.Test;
 
 public class FileInputTest {
@@ -11,19 +13,19 @@ public class FileInputTest {
 		
 		String filepath = System.getProperty("user.dir") + "/TrainingSet/1.txt";
 		FileInput file;
-		String rawText;
+		ArrayList<String> text = new ArrayList<String>();
 		
-		rawText = "My name is Cici Maria " + 
-				"I am from Mexico. " + 
-				"My sister live in the U.S. " +
-				"My fathers lives in Mexico " +
-				"My live in Chicago come husband and children " + 
-				"My baby Cherry the 3 years my husband his name is Ben the 27 years " +
-				"I like Chicago for work ";	
+		text.add("My name is Cici Maria") ;
+		text.add("I am from Mexico.");
+		text.add("My sister live in the U.S.");
+		text.add("My fathers lives in Mexico");
+		text.add("My live in Chicago come husband and children");
+		text.add("My baby Cherry the 3 years my husband his name is Ben the 27 years");
+		text.add("I like Chicago for work");
 		
 		file = new FileInput();
 		 
-		assertEquals(rawText, file.readInputFile(filepath)) ;
+		assertEquals(text, file.readInputFile(filepath)) ;
 	}
 	
 	@Test

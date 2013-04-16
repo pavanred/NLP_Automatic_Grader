@@ -11,19 +11,13 @@ import opennlp.tools.postag.POSTaggerME;
 
 public class AutoGrader {
 	
+	private MaxentTagger stanfordTagger = null;
+	private POSModel opennlpModel = null;
+	private POSTaggerME opennlpTagger = null;
+	
 	public AutoGrader(){
 
 	}
-	
-	/**
-	 * Segment the essay text into sentences based on punctuation, capitalization, finite verb hypothesis
-	 * @param Essay text encapsulated in an Essay object
-	 * @author pavan
-	 */
-	public void segmentEssay(Essay essay) {
-		
-		if(essay.getRawText() == "") return;		
-	}	
 	
 	public ArrayList<PosTag> getStanfordPosTags(String text){
 	
@@ -34,9 +28,13 @@ public class AutoGrader {
 		
 		try {
 			
-			//MaxentTagger tagger = new MaxentTagger(System.getProperty("user.dir") + "/Models/bidirectional-distsim-wsj-0-18.tagger");
-			MaxentTagger tagger = new MaxentTagger(System.getProperty("user.dir") + "/Models/left3words-wsj-0-18.tagger");
-			String tagged = tagger.tagString(text);
+			if(stanfordTagger == null){
+				
+				//MaxentTagger stanfordTagger = new MaxentTagger(System.getProperty("user.dir") + "/Models/bidirectional-distsim-wsj-0-18.tagger");
+				stanfordTagger = new MaxentTagger(System.getProperty("user.dir") + "/Models/left3words-wsj-0-18.tagger");
+			}			
+			
+			String tagged = stanfordTagger.tagString(text);
 			//System.out.println(tagged);
 			for(String wordTag : tagged.split(" ")){
 				
@@ -68,11 +66,16 @@ public class AutoGrader {
 		ArrayList<PosTag> posTags = new ArrayList<PosTag>();
 
 		try {
-			modelIn = new FileInputStream(System.getProperty("user.dir") + "/Models/en-pos-maxent.bin");
-			POSModel model = new POSModel(modelIn);
 			
-			POSTaggerME tagger = new POSTaggerME(model);
-			tags = tagger.tag(textArray);
+			if(opennlpModel == null || opennlpTagger == null){
+				modelIn = new FileInputStream(System.getProperty("user.dir") + "/Models/en-pos-maxent.bin");
+				opennlpModel = new POSModel(modelIn);
+				
+				opennlpTagger = new POSTaggerME(opennlpModel);
+			}
+			
+			
+			tags = opennlpTagger.tag(textArray);
 			
 			if(textArray.length != tags.length)
 				throw new Exception();
@@ -104,6 +107,74 @@ public class AutoGrader {
 			}
 		}
 	}	
+	
+	/**
+	 * grade the essay text based on punctuation, capitalization, finite verb hypothesis
+	 * @param Essay object
+	 * @author pavan
+	 */
+	
+	public void gradeEssayLength(Essay essay){
+		
+		int length = 0;
+		
+		int lines = essay.getSentences().size();
+		int verbs = 0;
+		int sentencebreaks = 0;
+		int localverbs = 0;
+		int conjunctions = 0;
+		
+		ArrayList<PosTag> tags = new ArrayList<PosTag>();
+		
+		for(int i=0; i < essay.getSentences().size(); i++){
+			
+			localverbs = 0;
+			conjunctions = 0;
+			
+			if(essay.getSentences().get(i).equals(""))continue;
+			
+			tags = essay.getPosTags().get(i);
+			
+			for(PosTag pos : tags){
+				
+				if(pos.getPartOfSpeech() == PartOfSpeech.VB || pos.getPartOfSpeech() == PartOfSpeech.VBD ||
+						pos.getPartOfSpeech() == PartOfSpeech.VBG || pos.getPartOfSpeech() == PartOfSpeech.VBN ||
+						pos.getPartOfSpeech() == PartOfSpeech.VBP || pos.getPartOfSpeech() == PartOfSpeech.VBZ){
+					
+					localverbs = localverbs + 1;
+				}
+				
+				if(pos.getPartOfSpeech() == PartOfSpeech.CC){
+					conjunctions = conjunctions + 1;
+				}	
+				
+				if(pos.getPartOfSpeech() == PartOfSpeech.DOT)
+					sentencebreaks = sentencebreaks + 1;
+			}
+			
+			if(localverbs > conjunctions)
+				verbs = verbs + (localverbs - conjunctions);
+			else 
+				verbs = verbs + localverbs;							
+		}
+		
+		length = (lines > verbs)?(lines > sentencebreaks)?(lines):(sentencebreaks):(verbs > sentencebreaks)?(verbs):(sentencebreaks);
+		
+		if(length >= 6)
+			essay.getEssayScore().setEssayLengthScore(5);
+		else if(length == 5)
+			essay.getEssayScore().setEssayLengthScore(4);
+		else if(length == 4)
+			essay.getEssayScore().setEssayLengthScore(3);
+		else if(length == 3)
+			essay.getEssayScore().setEssayLengthScore(2);
+		else if(length < 3 && length > 0)
+			essay.getEssayScore().setEssayLengthScore(1);
+		else 
+			essay.getEssayScore().setEssayLengthScore(0);
+		
+		//return essay;
+	}
 	
 	public PartOfSpeech getPOS(String posText){
 	    

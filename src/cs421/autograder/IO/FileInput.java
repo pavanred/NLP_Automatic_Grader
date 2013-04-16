@@ -3,6 +3,7 @@ package cs421.autograder.IO;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.util.ArrayList;
 
 public class FileInput {
 
@@ -12,10 +13,11 @@ public class FileInput {
 	 * @return essay text
 	 * @author pavan
 	 */
-	public String readInputFile(String filepath) {
+	public ArrayList<String> readInputFile(String filepath) {
 		
 		BufferedReader reader;	
-		StringBuilder essayText = new StringBuilder();
+		//StringBuilder essayText = new StringBuilder();
+		ArrayList<String> essayText = new ArrayList<String>();
 		
 		try {
 			
@@ -23,7 +25,8 @@ public class FileInput {
 			String currentLine;
 
 			while ((currentLine = reader.readLine()) != null) {
-				essayText.append(currentLine + " ");					
+				//essayText.append(currentLine + "$");
+				essayText.add(currentLine);
 			}
 			
 			reader.close();
@@ -37,7 +40,7 @@ public class FileInput {
 			System.out.println("[Error] Error reading " + filepath);
 		}	
 		
-		return essayText.toString();
+		return essayText;
 	}
 
 }

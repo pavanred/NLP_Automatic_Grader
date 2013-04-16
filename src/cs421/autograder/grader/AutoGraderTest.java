@@ -9,7 +9,7 @@ public class AutoGraderTest {
 
 	AutoGrader grader = new AutoGrader();
 	
-	@Test
+	/*@Test
 	public void testSegmentEmpty() {
 
 		Essay essay, expected;
@@ -21,9 +21,9 @@ public class AutoGraderTest {
 		expected = new Essay();
 		
 		assertEquals(expected, essay);	
-	}
+	}*/
 	
-	@Test
+	/*@Test
 	public void testSegmentEssay2() {
 
 		Essay actual, expected;
@@ -54,7 +54,7 @@ public class AutoGraderTest {
 		grader.segmentEssay(actual);
 		 
 		assertEquals(expected, actual);	
-	}
+	}*/
 	
 	@Test
 	public void testGetPOS() {

@@ -2,6 +2,7 @@ package cs421.autograder;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 
 import cs421.autograder.IO.FileInput;
 import cs421.autograder.grader.AutoGrader;
@@ -17,7 +18,7 @@ public class Main {
 		
 		FileInput inputfile;
 		Essay essay;
-		String essayText;
+		ArrayList<String> essayText;
 		AutoGrader grader;
 		File[] fileList;
 		
@@ -33,6 +34,7 @@ public class Main {
 		
 		inputfile = new FileInput();	
 		grader = new AutoGrader();
+		essayText = new ArrayList<String>();
 		
 		//loop through every essay in the training set and learn the evaluation scheme
 		for(File file : fileList){
@@ -40,14 +42,22 @@ public class Main {
 			essay = new Essay();
 			
 			essayText = inputfile.readInputFile(file.getAbsolutePath());
-			essay.setRawText(essayText);
+			//essay.setRawText(essayText);
+			essay.setSentences(essayText);
+
+			for(int i=0; i < essay.getSentences().size(); i++){
 			
+				String line = essay.getSentences().get(i);
+				
+				if(!line.equals("")){
+					//essay.addPosTag(grader.getOpennlpPosTags(line.split(" ")));
+					essay.addPosTag(grader.getStanfordPosTags(line));	
+				}
+			}
 			
+			grader.gradeEssayLength(essay);
 			
-			//grader.getOpennlpPosTags(essayText.split(" "));
-			grader.getStanfordPosTags(essayText);
-			
-			
+			System.out.println(file.getName() + " - " + essay.getEssayScore().getEssayLengthScore());
 		}
 	}
 }

@@ -6,9 +6,19 @@ import cs421.autograder.evaluation.Score;
 
 public class Essay {
 
-	private String rawText;
+	//private String rawText;
 	private ArrayList<String> sentences;
 	private Score essayScore;
+	private ArrayList<ArrayList<PosTag>> posTags;
+	private Integer length;
+	
+	public ArrayList<ArrayList<PosTag>> getPosTags(){
+		return this.posTags;
+	}
+	
+	public void setPosTags(ArrayList<ArrayList<PosTag>> _posTags){
+		this.posTags = _posTags;
+	}
 	
 	public ArrayList<String> getSentences(){
 		return this.sentences;
@@ -26,19 +36,29 @@ public class Essay {
 		this.essayScore = _score;
 	}
 	
+	public Integer getLength(){
+		return this.length;
+	}
+	
+	public void setLength(Integer _len){
+		this.length = _len;
+	}
+	
 	public Essay(){
 		this.sentences = new ArrayList<String>();
 		this.essayScore = new Score();
-		this.rawText = "";
+		this.posTags = new ArrayList<ArrayList<PosTag>>();
+		this.length = 0;
+		//this.rawText = "";
 	}
 	
-	public String getRawText(){
+	/*public String getRawText(){
 		return this.rawText;
 	}
 	
 	public void setRawText(String _rawText){
 		this.rawText = _rawText;
-	}
+	}*/
 	
 	/**
 	 * Add a sentence of the essay to the list
@@ -51,6 +71,12 @@ public class Essay {
 		this.sentences.add(sentence);
 	}	
 	
+	public void addPosTag(ArrayList<PosTag> postags){
+		
+		if(this.posTags == null) return;		
+		this.posTags.add(postags);
+	}	
+	
 	@Override
 	public boolean equals(Object newEssay){
 		
@@ -61,9 +87,10 @@ public class Essay {
 	    Essay instance = (Essay)newEssay;
 	    
 	    return instance.essayScore.equals(this.essayScore) &&
-	    		instance.rawText == this.rawText ||
-	    		(this.rawText != "" && this.rawText.equals(instance.getRawText())) &&
-	    		instance.sentences.equals(this.sentences);	    		
+	    		/*instance.rawText == this.rawText ||
+	    		(this.rawText != "" && this.rawText.equals(instance.getRawText())) &&*/
+	    		instance.sentences.equals(this.sentences) &&
+	    		instance.posTags.equals(this.posTags);	    		
 	}
 	
 }
