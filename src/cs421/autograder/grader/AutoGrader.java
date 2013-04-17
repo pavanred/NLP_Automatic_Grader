@@ -4,8 +4,13 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import edu.stanford.nlp.tagger.maxent.MaxentTagger;
-
 import java.util.ArrayList;
+
+import opennlp.tools.cmdline.parser.ParserTool;
+import opennlp.tools.parser.Parse;
+import opennlp.tools.parser.Parser;
+import opennlp.tools.parser.ParserFactory;
+import opennlp.tools.parser.ParserModel;
 import opennlp.tools.postag.POSModel;
 import opennlp.tools.postag.POSTaggerME;
 
@@ -13,12 +18,10 @@ public class AutoGrader {
 	
 	private MaxentTagger stanfordTagger = null;
 	private POSModel opennlpModel = null;
-	private POSTaggerME opennlpTagger = null;
-	
-	public AutoGrader(){
-
-	}
-	
+	private POSTaggerME opennlpTagger = null;	
+	private ParserModel pmodel = null; 
+	private InputStream parsermodelIn = null;
+		
 	public ArrayList<PosTag> getStanfordPosTags(String text){
 	
 		ArrayList<PosTag> posTags = new ArrayList<PosTag>();
@@ -107,6 +110,40 @@ public class AutoGrader {
 			}
 		}
 	}	
+	
+	public Parse getParseTree(String sentence){
+		
+		try {	
+		
+			if(pmodel == null || parsermodelIn == null){
+								
+				parsermodelIn = new FileInputStream(System.getProperty("user.dir") + "/Models/en-parser-chunking.bin");			
+				pmodel = new ParserModel(parsermodelIn);				
+			}
+			
+			Parser parser = ParserFactory.create(pmodel);
+						
+			Parse topParses[] = ParserTool.parseLine(sentence, parser, 1);	
+			
+			//System.out.println(sentence);
+			//topParses[0].show();
+			
+			return topParses[0];
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
+		finally {
+			if (parsermodelIn != null) {
+				try {
+					parsermodelIn.close();
+				}
+				catch (IOException e) {
+				}
+			}	
+		}
+	}
 	
 	/**
 	 * grade the essay text based on punctuation, capitalization, finite verb hypothesis
@@ -224,4 +261,9 @@ public class AutoGrader {
 			return returnPos;
 		}
     }
+
+	public void gradeSyntax(Essay essay) {
+		
+				
+	}
 }

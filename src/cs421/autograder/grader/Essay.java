@@ -2,12 +2,15 @@ package cs421.autograder.grader;
 
 import java.util.ArrayList;
 
+import opennlp.tools.parser.Parse;
+
 import cs421.autograder.evaluation.Score;
 
 public class Essay {
 
 	//private String rawText;
 	private ArrayList<String> sentences;
+	private ArrayList<Parse> parsedSentences;
 	private Score essayScore;
 	private ArrayList<ArrayList<PosTag>> posTags;
 	private Integer length;
@@ -28,6 +31,14 @@ public class Essay {
 		this.sentences = _sentences;
 	}
 	
+	public ArrayList<Parse> getParsedSentences(){
+		return this.parsedSentences;
+	}
+	
+	public void setParsedSentences(ArrayList<Parse> _parsedSentences){
+		this.parsedSentences = _parsedSentences;
+	}
+	
 	public Score getEssayScore(){
 		return this.essayScore;
 	}
@@ -46,6 +57,7 @@ public class Essay {
 	
 	public Essay(){
 		this.sentences = new ArrayList<String>();
+		this.parsedSentences = new ArrayList<Parse>();
 		this.essayScore = new Score();
 		this.posTags = new ArrayList<ArrayList<PosTag>>();
 		this.length = 0;
@@ -71,6 +83,12 @@ public class Essay {
 		this.sentences.add(sentence);
 	}	
 	
+	public void addParsedSentence(Parse parsedSentence){
+		
+		if(this.parsedSentences == null) return;		
+		this.parsedSentences.add(parsedSentence);
+	}	
+	
 	public void addPosTag(ArrayList<PosTag> postags){
 		
 		if(this.posTags == null) return;		
@@ -90,6 +108,7 @@ public class Essay {
 	    		/*instance.rawText == this.rawText ||
 	    		(this.rawText != "" && this.rawText.equals(instance.getRawText())) &&*/
 	    		instance.sentences.equals(this.sentences) &&
+	    		instance.parsedSentences.equals(this.parsedSentences) &&
 	    		instance.posTags.equals(this.posTags);	    		
 	}
 	

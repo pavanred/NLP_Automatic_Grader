@@ -51,11 +51,13 @@ public class Main {
 				
 				if(!line.equals("")){
 					//essay.addPosTag(grader.getOpennlpPosTags(line.split(" ")));
-					essay.addPosTag(grader.getStanfordPosTags(line));	
+					essay.addPosTag(grader.getStanfordPosTags(line));
+					essay.addParsedSentence(grader.getParseTree(line));
 				}
 			}
 			
-			grader.gradeEssayLength(essay);
+			grader.gradeEssayLength(essay);  //TODO capitalization
+			grader.gradeSyntax(essay);
 			
 			System.out.println(file.getName() + " - " + essay.getEssayScore().getEssayLengthScore());
 		}

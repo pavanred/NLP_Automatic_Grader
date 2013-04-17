@@ -59,4 +59,64 @@ public enum PartOfSpeech {
     public String getDescription() {
         return this.Description;
     }
+    
+    public Person getPersonType(PartOfSpeech pos){    	
+    	
+    	//word = word.toLowerCase();
+    	
+    	if(pos == PartOfSpeech.VBZ || pos == PartOfSpeech.NN || pos == PartOfSpeech.NNP 
+    			|| pos == PartOfSpeech.NNPS || pos == PartOfSpeech.NNS)
+    		return Person.THIRD;
+    	
+    	else if(pos == PartOfSpeech.VBP)
+    		return Person.NON_THIRD;
+    	//TODO pronouns
+    	/*else if(pos == PartOfSpeech.PRP && (word == "i" || word == "me"))
+    		
+    	else if(pos == PartOfSpeech.PRP$ && (word == "i" || word == "me"))*/
+    		
+    	else
+    		return Person.NA;
+    }
+    
+    public Case getCaseType(PartOfSpeech pos){
+    	
+    	if(pos == PartOfSpeech.POS || pos == PartOfSpeech.PRP$ || pos == PartOfSpeech.WP$)
+    		return Case.POSSESSIVE;
+    	else
+    		return Case.NON_POSSESSIVE;
+    }
+    
+    public Number getNumberType(PartOfSpeech pos){
+    	
+    	if(pos == PartOfSpeech.NN || pos == PartOfSpeech.NNP || 
+    			pos == PartOfSpeech.VBP || pos == PartOfSpeech.VBZ)
+    		return Number.SINGULAR;
+    	
+    	else if(pos == PartOfSpeech.NNS || pos == PartOfSpeech.NNPS)
+    		return Number.PLURAL;
+    	
+    	else 
+    		return Number.NA;    	
+    }
+    
+    public Tense getTenseType(PartOfSpeech pos){
+    	
+    	if(pos == PartOfSpeech.VBD)
+    		return Tense.PAST;
+    	else if(pos == PartOfSpeech.VBG)
+    		return Tense.PRESENT_PARTICIPLE;
+    	else if (pos == PartOfSpeech.VBN)
+    		return Tense.PAST_PARTICIPLE;
+    	else if(pos == PartOfSpeech.VBP || pos == PartOfSpeech.VBZ)
+    		return Tense.PRESENT;
+    	else
+    		return Tense.NA;    		
+    }
+    
+    public Gender getGenderType(PartOfSpeech pos){
+    	
+    	//if(pos == PartOfSpeech.)
+    	return null;
+    }
 }
