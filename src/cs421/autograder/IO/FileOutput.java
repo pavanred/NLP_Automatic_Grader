@@ -1,5 +1,6 @@
 package cs421.autograder.IO;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -9,15 +10,65 @@ import cs421.autograder.evaluation.Score;
 
 public class FileOutput {
 
+	BufferedWriter output;
+	
+	public FileOutput(String filepath){
+		
+		try {
+			
+			File file = new File(filepath);
+	
+			if(file.exists()){
+				file.delete();
+			}
+	
+			output = new BufferedWriter(new FileWriter(file));
+			
+			System.out.println("Essay\t1a\t1b\t1c\t1d\t2a\t2b\t3a\tFinalGrade\n");
+			output.write("Essay\t1a\t1b\t1c\t1d\t2a\t2b\t3a\tFinalGrade\n");			
+		
+		} catch (IOException e) {
+
+			System.out.println("[Error] Output file write operation");
+		}		
+	}
+	
 	/**
 	 * Writes essay scores to CSV output file
 	 * @param filepath path to the CSV output file
 	 * @return scores
 	 * @author girish
 	 */
-	public void writeOutputFile(String filepath, Score scores) {
+	public void writeOutput(String name, Score scores) {
         
-        boolean alreadyExists = new File(filepath).exists();
+		try {
+			
+			System.out.println(name + "\t" + scores.getWordOrderScore() + 
+					"\t" + scores.getSubjectVerbAgreementScore() +
+					"\t" + scores.getVerbUsageScore() +
+					"\t" + scores.getSentenceFormationScore() +
+					"\t" + scores.getCoherenceScore() +
+					"\t" + scores.getTopicAdherenceScore() +
+					"\t" + scores.getEssayLengthScore() +
+					"\t" + scores.getFinalScore());
+			
+			output.write(name + "\t" + scores.getWordOrderScore() + 
+					"\t" + scores.getSubjectVerbAgreementScore() +
+					"\t" + scores.getVerbUsageScore() +
+					"\t" + scores.getSentenceFormationScore() +
+					"\t" + scores.getCoherenceScore() +
+					"\t" + scores.getTopicAdherenceScore() +
+					"\t" + scores.getEssayLengthScore() +
+					"\t" + scores.getFinalScore());
+
+		
+		} catch (IOException e) {
+			
+			System.out.println("[Error] Output file write operation");
+		}
+		
+		
+        /*boolean alreadyExists = new File(filepath).exists();
         
         try {
         	// use FileWriter constructor that specifies open for appending
@@ -53,7 +104,7 @@ public class FileOutput {
         }
         catch (IOException e) {
 			e.printStackTrace();
-		} 
+		} */
 	}
 
 }

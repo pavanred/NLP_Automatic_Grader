@@ -5,8 +5,10 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
 import cs421.autograder.IO.FileInput;
+import cs421.autograder.IO.FileOutput;
 import cs421.autograder.grader.AutoGrader;
 import cs421.autograder.grader.Essay;
+import edu.stanford.nlp.io.EncodingPrintWriter.out;
 
 public class Main {
 
@@ -17,12 +19,14 @@ public class Main {
 	public static void main(String[] args) throws FileNotFoundException {
 		
 		FileInput inputfile;
+		FileOutput outputfile;
 		Essay essay;
 		ArrayList<String> essayText;
 		AutoGrader grader;
 		File[] fileList;
 		
 		String trainingSetPath = System.getProperty("user.dir") + "/TrainingSet/";
+		String gradesDirPath = System.getProperty("user.dir") + "/output/grades.txt";
 		
 		File trainingSetDir = new File(trainingSetPath);		
 		
@@ -32,7 +36,8 @@ public class Main {
 		if(fileList.length < 0)
 			throw new FileNotFoundException("No essay files found");
 		
-		inputfile = new FileInput();	
+		inputfile = new FileInput();
+		outputfile = new FileOutput(gradesDirPath);
 		grader = new AutoGrader();
 		essayText = new ArrayList<String>();
 		
@@ -58,8 +63,8 @@ public class Main {
 			
 			grader.gradeEssayLength(essay);  //TODO capitalization
 			grader.gradeSyntax(essay);
-			
-			System.out.println(file.getName() + " - " + essay.getEssayScore().getEssayLengthScore());
+							
+			outputfile.writeOutput(file.getName().replace(".txt", "") , essay.getEssayScore());			
 		}
 	}
 }
