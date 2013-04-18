@@ -317,6 +317,7 @@ public class AutoGrader {
 		int sCount = parse.size();
 		int berrorcount = 0;
 		int cerrorcount = 0;
+		ArrayList<Parse> allS = new ArrayList<Parse>();
 		
 		ArrayList<String> nouns = new ArrayList<String>();
 		nouns.add(PartOfSpeech.NN.toString());
@@ -335,6 +336,8 @@ public class AutoGrader {
 		verbs.add(PartOfSpeech.VBN.toString());
 		verbs.add(PartOfSpeech.VBP.toString());
 		verbs.add(PartOfSpeech.VBZ.toString());
+		
+		ArrayList<Parse> allVerbs = new ArrayList<Parse>();
 		
 		for(int i=0; i<parse.size();i++){	
 			
@@ -366,25 +369,102 @@ public class AutoGrader {
 			}
 			
 			
+			allS = getAllBFS(parse.get(i),PartOfSpeech.S.toString());
+			
+			if(allS.size() > 1){
+				
+				for(int j=1; j< allS.size(); j++){
+					
+					subject = new PosTag(null,null);
+					mainVerb = new PosTag(null,null);
+					//parse.get(i).show();
+					
+					node = BFS(parse.get(i),PartOfSpeech.NP.toString());	
+								
+					if(node != null){
+						
+						tag = BFS(node,nouns);
+						
+						if(tag == null)
+							tag = BFS(node, pronouns);
+						
+						if(tag != null)
+							subject = new PosTag(tag.toString(), getPOS(tag.getType()));				
+					}
+						
+					node = BFS(parse.get(i),PartOfSpeech.VP.toString());
+					
+					if(node != null){
+						
+						tag = BFS(node,verbs);
+						
+						if(tag != null)
+							mainVerb = new PosTag(tag.toString(), getPOS(tag.getType()));				
+					}		
+					
+					if(mainVerb.getPartOfSpeech() == PartOfSpeech.VB);				
+					else if(PartOfSpeech.getPersonType(subject.getPartOfSpeech(),subject.getString())
+							!= PartOfSpeech.getPersonType(mainVerb.getPartOfSpeech(), mainVerb.getString())){
+						//System.out.println(mainVerb.getString());
+						//System.out.println(subject.getString());
+						berrorcount = berrorcount + 1;
+						sCount = sCount + 1;
+					}
+				}
+			}
+			
 			//System.out.println(mainVerb.getString());
 			//System.out.println(subject.getString());
 			
 			//evaluation 1b
-			if(PartOfSpeech.getPersonType(subject.getPartOfSpeech(),subject.getString())
+			if(mainVerb.getPartOfSpeech() == PartOfSpeech.VB);				
+			else if(PartOfSpeech.getPersonType(subject.getPartOfSpeech(),subject.getString())
 					!= PartOfSpeech.getPersonType(mainVerb.getPartOfSpeech(), mainVerb.getString())){
 				//System.out.println(mainVerb.getString());
 				//System.out.println(subject.getString());
 				berrorcount = berrorcount + 1;
 			}
 			
-			//evaluation 1c
-			if(mainVerb.getString() == null || mainVerb.getPartOfSpeech() == null)
-				cerrorcount = cerrorcount +1;
 			
-		    essay.getEssayScore().setSubjectVerbAgreementScore(essay.getEssayScore().computeScore(berrorcount,sCount));
-		    essay.getEssayScore().setSubjectVerbAgreementScore(essay.getEssayScore().computeScore(cerrorcount,sCount));
+			
+			//evaluation 1c
+			allVerbs = getAllBFS(parse.get(i), verbs);
+			int[] tensecounts = new int[4];
+						
+			if(allVerbs.size() > 0){
+				
+				for(int c=0;c<allVerbs.size();c++){
+					
+					if(PartOfSpeech.getTenseType(getPOS(allVerbs.get(c).getType())) == Tense.PAST)
+						tensecounts[0] = tensecounts[0] + 1;
+					else if(PartOfSpeech.getTenseType(getPOS(allVerbs.get(c).getType())) == Tense.PRESENT_PARTICIPLE)
+						tensecounts[1] = tensecounts[1] + 1;
+					else if(PartOfSpeech.getTenseType(getPOS(allVerbs.get(c).getType())) == Tense.PRESENT)
+						tensecounts[2] = tensecounts[2] + 1;
+					else if(PartOfSpeech.getTenseType(getPOS(allVerbs.get(c).getType())) == Tense.PAST_PARTICIPLE)
+						tensecounts[3] = tensecounts[3] + 1;
+					
+					int max = 0; 
+					
+					for(int s=0; s<tensecounts.length;s++){
+						if(tensecounts[s] >= max)
+							max = tensecounts[s];
+					}
+					
+					cerrorcount =  allVerbs.size() - max;
+				}
+				
+			}
+			else{
+				cerrorcount = cerrorcount + 1;
+			}
+		    
+			
+		    
+		    
 		}
-		
+		essay.getEssayScore().setSubjectVerbAgreementScore(essay.getEssayScore().computeScore(berrorcount,sCount));
+		essay.getEssayScore().setVerbUsageScore(essay.getEssayScore().computeScore(cerrorcount,allVerbs.size()));
 		//System.out.println(berrorcount + "/" + sCount);
 	}
 		
@@ -409,6 +489,54 @@ public class AutoGrader {
 		}
 		
 		return null;
+	}
+	
+	public ArrayList<Parse> getAllBFS(Parse graph,String searchText){
+		
+		Queue<Parse> queue = new LinkedList<Parse>();
+		ArrayList<Parse> ret = new ArrayList<Parse>();
+				
+		queue.add(graph);
+		
+		while(!queue.isEmpty()){
+			
+			Parse node = (Parse)queue.remove();
+						
+			if(node.getType().equals(searchText)){
+				ret.add(node);
+			}
+			
+			for(int i=0; i<node.getChildCount();i++ ){	
+				
+				queue.add(node.getChildren()[i]);
+			}			
+		}
+		
+		return ret;
+	}
+	
+	public ArrayList<Parse> getAllBFS(Parse graph,ArrayList<String> searchText){
+		
+		Queue<Parse> queue = new LinkedList<Parse>();
+		ArrayList<Parse> ret = new ArrayList<Parse>();
+				
+		queue.add(graph);
+		
+		while(!queue.isEmpty()){
+			
+			Parse node = (Parse)queue.remove();
+						
+			if(searchText.contains(node.getType())){
+				ret.add(node);
+			}
+			
+			for(int i=0; i<node.getChildCount();i++ ){	
+				
+				queue.add(node.getChildren()[i]);
+			}			
+		}
+		
+		return ret;
 	}
 	
 	public Parse BFS(Parse graph,ArrayList<String> searchText){

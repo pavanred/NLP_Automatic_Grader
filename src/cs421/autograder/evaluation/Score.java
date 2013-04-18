@@ -126,7 +126,17 @@ public class Score {
 	
 	public int computeScore(int error, int total){
 		
-		float score = (error/(float)total)*5;		
-		return 5 - Math.round(score);
+		float score = (error/(float)total);		
+		
+		if(score >= 0.85)
+			return 1;
+		else if(score < 0.85 && score >= 0.7)
+			return 2;
+		else if(score < 0.7 && score >= 0.4)
+			return 3; 
+		else if(score < 0.4 && score >= 0.2)
+			return 4; 
+		else 
+			return 5;
 	}
 }
