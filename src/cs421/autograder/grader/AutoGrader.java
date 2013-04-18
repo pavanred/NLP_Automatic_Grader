@@ -5,6 +5,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import edu.stanford.nlp.tagger.maxent.MaxentTagger;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Stack;
 
 import opennlp.tools.cmdline.parser.ParserTool;
 import opennlp.tools.parser.Parse;
@@ -13,6 +17,8 @@ import opennlp.tools.parser.ParserFactory;
 import opennlp.tools.parser.ParserModel;
 import opennlp.tools.postag.POSModel;
 import opennlp.tools.postag.POSTaggerME;
+import opennlp.tools.sentdetect.SentenceDetectorME;
+import opennlp.tools.sentdetect.SentenceModel;
 
 public class AutoGrader {
 	
@@ -21,6 +27,7 @@ public class AutoGrader {
 	private POSTaggerME opennlpTagger = null;	
 	private ParserModel pmodel = null; 
 	private InputStream parsermodelIn = null;
+	private InputStream smodel = null;
 		
 	public ArrayList<PosTag> getStanfordPosTags(String text){
 	
@@ -262,8 +269,168 @@ public class AutoGrader {
 		}
     }
 
+	public void segmentEssay(Essay essay){
+		
+		try {
+			
+			//if(smodel == null){
+				
+				smodel = new FileInputStream(System.getProperty("user.dir") + "/Models/en-sent.bin");	
+			//}
+			
+			SentenceModel model = new SentenceModel(smodel);
+		  
+			SentenceDetectorME sentenceDetector = new SentenceDetectorME(model);
+		  
+			ArrayList<String> newsent = new ArrayList<String>();
+		  
+			for(int i=0; i<essay.getSentences().size(); i++){
+		  
+				newsent.addAll(Arrays.asList(sentenceDetector.sentDetect(essay.getSentences().get(i))));		  
+			}
+		  
+		  essay.setDetectedSentences(newsent);
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+		finally {
+			if (smodel != null) {
+				try {
+					//smodel = null;
+					smodel.close();
+				}
+				catch (IOException e) {
+				}
+			}
+		}
+	}
+	
 	public void gradeSyntax(Essay essay) {
 		
+		ArrayList<Parse> parse = essay.getParsedSentences();	
+		
+		PosTag subject = new PosTag(null,null);
+		PosTag mainVerb = new PosTag(null,null);
+		Parse node;
+		Parse tag;
+		int sCount = parse.size();
+		int berrorcount = 0;
+		int cerrorcount = 0;
+		
+		ArrayList<String> nouns = new ArrayList<String>();
+		nouns.add(PartOfSpeech.NN.toString());
+		nouns.add(PartOfSpeech.NNP.toString());
+		nouns.add(PartOfSpeech.NNPS.toString());
+		nouns.add(PartOfSpeech.NNS.toString());
+		
+		ArrayList<String> pronouns = new ArrayList<String>();
+		pronouns.add(PartOfSpeech.PRP.toString());
+		pronouns.add(PartOfSpeech.PRP$.toString());
+		
+		ArrayList<String> verbs = new ArrayList<String>();		
+		verbs.add(PartOfSpeech.VB.toString());
+		verbs.add(PartOfSpeech.VBD.toString());
+		verbs.add(PartOfSpeech.VBG.toString());
+		verbs.add(PartOfSpeech.VBN.toString());
+		verbs.add(PartOfSpeech.VBP.toString());
+		verbs.add(PartOfSpeech.VBZ.toString());
+		
+		for(int i=0; i<parse.size();i++){	
+			
+			subject = new PosTag(null,null);
+			mainVerb = new PosTag(null,null);
+			//parse.get(i).show();
+			
+			node = BFS(parse.get(i),PartOfSpeech.NP.toString());	
+						
+			if(node != null){
 				
+				tag = BFS(node,nouns);
+				
+				if(tag == null)
+					tag = BFS(node, pronouns);
+				
+				if(tag != null)
+					subject = new PosTag(tag.toString(), getPOS(tag.getType()));				
+			}
+				
+			node = BFS(parse.get(i),PartOfSpeech.VP.toString());
+			
+			if(node != null){
+				
+				tag = BFS(node,verbs);
+				
+				if(tag != null)
+					mainVerb = new PosTag(tag.toString(), getPOS(tag.getType()));				
+			}
+			
+			
+			//System.out.println(mainVerb.getString());
+			//System.out.println(subject.getString());
+			
+			//evaluation 1b
+			if(PartOfSpeech.getPersonType(subject.getPartOfSpeech(),subject.getString())
+					!= PartOfSpeech.getPersonType(mainVerb.getPartOfSpeech(), mainVerb.getString())){
+				//System.out.println(mainVerb.getString());
+				//System.out.println(subject.getString());
+				berrorcount = berrorcount + 1;
+			}
+			
+			//evaluation 1c
+			if(mainVerb.getString() == null || mainVerb.getPartOfSpeech() == null)
+				cerrorcount = cerrorcount +1;
+			
+		    essay.getEssayScore().setSubjectVerbAgreementScore(essay.getEssayScore().computeScore(berrorcount,sCount));
+		    essay.getEssayScore().setSubjectVerbAgreementScore(essay.getEssayScore().computeScore(cerrorcount,sCount));
+		}
+		
+		//System.out.println(berrorcount + "/" + sCount);
+	}
+		
+	public Parse BFS(Parse graph,String searchText){
+		
+		Queue<Parse> queue = new LinkedList<Parse>();
+				
+		queue.add(graph);
+		
+		while(!queue.isEmpty()){
+			
+			Parse node = (Parse)queue.remove();
+						
+			if(node.getType().equals(searchText)){
+				return node;
+			}
+			
+			for(int i=0; i<node.getChildCount();i++ ){	
+				
+				queue.add(node.getChildren()[i]);
+			}			
+		}
+		
+		return null;
+	}
+	
+	public Parse BFS(Parse graph,ArrayList<String> searchText){
+		
+		Queue<Parse> queue = new LinkedList<Parse>();
+				
+		queue.add(graph);
+		
+		while(!queue.isEmpty()){
+			
+			Parse node = (Parse)queue.remove();
+						
+			if(searchText.contains(node.getType())){
+				return node;
+			}
+			
+			for(int i=0; i<node.getChildCount();i++ ){	
+				
+				queue.add(node.getChildren()[i]);
+			}			
+		}
+		
+		return null;
 	}
 }

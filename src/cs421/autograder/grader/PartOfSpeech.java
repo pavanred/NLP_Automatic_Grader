@@ -48,7 +48,11 @@ public enum PartOfSpeech {
     RBRACKET("Right parenthesis"),
     COMMA("Comma"),
     DOT("sentence final punctuation"),
-    COLON("mid sentence punctuation");
+    COLON("mid sentence punctuation"),
+	
+	NP("Noun Phrase"),
+	VP("Verb Phrase"),
+	S("Sentence");
 	
 	private PartOfSpeech(final String description) {
         this.Description = description;
@@ -60,7 +64,7 @@ public enum PartOfSpeech {
         return this.Description;
     }
     
-    public Person getPersonType(PartOfSpeech pos){    	
+    public static Person getPersonType(PartOfSpeech pos){    	
     	
     	//word = word.toLowerCase();
     	
@@ -79,7 +83,26 @@ public enum PartOfSpeech {
     		return Person.NA;
     }
     
-    public Case getCaseType(PartOfSpeech pos){
+    public static Person getPersonType(PartOfSpeech pos, String word){    	
+    	
+    	if(pos == null || word == null)
+    		return Person.NA;
+    	
+    	word = word.toLowerCase();
+    	
+    	if(pos == PartOfSpeech.VBZ || pos == PartOfSpeech.NN || pos == PartOfSpeech.NNP 
+    			|| pos == PartOfSpeech.NNPS || pos == PartOfSpeech.NNS || word.equals("he") || word.equals("their")
+    			|| word.equals("they") || word.equals("she") || word.equals("his") || word.equals("him") || word.equals("her") || word.equals("it"))
+    		return Person.THIRD;
+    	
+    	else if(pos == PartOfSpeech.VBP || word.equals("my") || word.equals("i") || word.equals("i'm"))
+    		return Person.NON_THIRD;
+   		
+    	else
+    		return Person.NA;
+    }
+    
+    public static Case getCaseType(PartOfSpeech pos){
     	
     	if(pos == PartOfSpeech.POS || pos == PartOfSpeech.PRP$ || pos == PartOfSpeech.WP$)
     		return Case.POSSESSIVE;
@@ -87,7 +110,7 @@ public enum PartOfSpeech {
     		return Case.NON_POSSESSIVE;
     }
     
-    public Number getNumberType(PartOfSpeech pos){
+    public static Number getNumberType(PartOfSpeech pos){
     	
     	if(pos == PartOfSpeech.NN || pos == PartOfSpeech.NNP || 
     			pos == PartOfSpeech.VBP || pos == PartOfSpeech.VBZ)
@@ -100,7 +123,7 @@ public enum PartOfSpeech {
     		return Number.NA;    	
     }
     
-    public Tense getTenseType(PartOfSpeech pos){
+    public static Tense getTenseType(PartOfSpeech pos){
     	
     	if(pos == PartOfSpeech.VBD)
     		return Tense.PAST;
@@ -114,9 +137,9 @@ public enum PartOfSpeech {
     		return Tense.NA;    		
     }
     
-    public Gender getGenderType(PartOfSpeech pos){
+    public static Gender getGenderType(PartOfSpeech pos){
     	
-    	//if(pos == PartOfSpeech.)
+    	//if(pos == PartOfSpeech.) //TODO
     	return null;
     }
 }

@@ -123,4 +123,10 @@ public class Score {
 		//rounding to the nearest 0.5
 		return Math.round(finalScore * 2.0f)/2.0f;
 	}		
+	
+	public int computeScore(int error, int total){
+		
+		float score = (error/(float)total)*5;		
+		return 5 - Math.round(score);
+	}
 }

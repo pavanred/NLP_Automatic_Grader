@@ -8,7 +8,6 @@ import cs421.autograder.IO.FileInput;
 import cs421.autograder.IO.FileOutput;
 import cs421.autograder.grader.AutoGrader;
 import cs421.autograder.grader.Essay;
-import edu.stanford.nlp.io.EncodingPrintWriter.out;
 
 public class Main {
 
@@ -57,14 +56,29 @@ public class Main {
 				if(!line.equals("")){
 					//essay.addPosTag(grader.getOpennlpPosTags(line.split(" ")));
 					essay.addPosTag(grader.getStanfordPosTags(line));
-					essay.addParsedSentence(grader.getParseTree(line));
+					//essay.addParsedSentence(grader.getParseTree(line));
 				}
 			}
 			
 			grader.gradeEssayLength(essay);  //TODO capitalization
+			
+			grader.segmentEssay(essay);
+			
+			for(int i=0; i < essay.getDetectedSentences().size(); i++){
+				
+				String text = essay.getDetectedSentences().get(i);
+				
+				if(!text.equals("")){
+					
+					essay.addParsedSentence(grader.getParseTree(text));
+				}
+			}
+			
 			grader.gradeSyntax(essay);
 							
 			outputfile.writeOutput(file.getName().replace(".txt", "") , essay.getEssayScore());			
 		}
+		
+		outputfile.Finished();
 	}
 }

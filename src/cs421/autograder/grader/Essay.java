@@ -11,6 +11,7 @@ public class Essay {
 	//private String rawText;
 	private ArrayList<String> sentences;
 	private ArrayList<Parse> parsedSentences;
+	private ArrayList<String> detectedSentences;
 	private Score essayScore;
 	private ArrayList<ArrayList<PosTag>> posTags;
 	private Integer length;
@@ -29,6 +30,14 @@ public class Essay {
 	
 	public void setSentences(ArrayList<String> _sentences){
 		this.sentences = _sentences;
+	}
+	
+	public ArrayList<String> getDetectedSentences(){
+		return this.detectedSentences;
+	}
+	
+	public void setDetectedSentences(ArrayList<String> _sentences){
+		this.detectedSentences = _sentences;
 	}
 	
 	public ArrayList<Parse> getParsedSentences(){
@@ -61,6 +70,7 @@ public class Essay {
 		this.essayScore = new Score();
 		this.posTags = new ArrayList<ArrayList<PosTag>>();
 		this.length = 0;
+		this.detectedSentences = new ArrayList<String>();
 		//this.rawText = "";
 	}
 	

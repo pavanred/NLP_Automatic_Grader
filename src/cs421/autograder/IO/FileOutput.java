@@ -4,8 +4,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import com.csvreader.CsvWriter;
-
 import cs421.autograder.evaluation.Score;
 
 public class FileOutput {
@@ -59,7 +57,7 @@ public class FileOutput {
 					"\t" + scores.getCoherenceScore() +
 					"\t" + scores.getTopicAdherenceScore() +
 					"\t" + scores.getEssayLengthScore() +
-					"\t" + scores.getFinalScore());
+					"\t" + scores.getFinalScore() + "\n");
 
 		
 		} catch (IOException e) {
@@ -105,6 +103,16 @@ public class FileOutput {
         catch (IOException e) {
 			e.printStackTrace();
 		} */
+	}
+
+	public void Finished() {
+		
+		try {
+			output.close();
+		} catch (IOException e) {
+			
+			e.printStackTrace();
+		}
 	}
 
 }
