@@ -8,8 +8,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.Stack;
-
 import opennlp.tools.cmdline.parser.ParserTool;
 import opennlp.tools.parser.Parse;
 import opennlp.tools.parser.Parser;
@@ -317,6 +315,7 @@ public class AutoGrader {
 		int sCount = parse.size();
 		int berrorcount = 0;
 		int cerrorcount = 0;
+		int aerrorcount = 0;
 		ArrayList<Parse> allS = new ArrayList<Parse>();
 		
 		ArrayList<String> nouns = new ArrayList<String>();
@@ -345,35 +344,11 @@ public class AutoGrader {
 			mainVerb = new PosTag(null,null);
 			//parse.get(i).show();
 			
-			node = BFS(parse.get(i),PartOfSpeech.NP.toString());	
-						
-			if(node != null){
-				
-				tag = BFS(node,nouns);
-				
-				if(tag == null)
-					tag = BFS(node, pronouns);
-				
-				if(tag != null)
-					subject = new PosTag(tag.toString(), getPOS(tag.getType()));				
-			}
-				
-			node = BFS(parse.get(i),PartOfSpeech.VP.toString());
-			
-			if(node != null){
-				
-				tag = BFS(node,verbs);
-				
-				if(tag != null)
-					mainVerb = new PosTag(tag.toString(), getPOS(tag.getType()));				
-			}
-			
-			
 			allS = getAllBFS(parse.get(i),PartOfSpeech.S.toString());
 			
 			if(allS.size() > 1){
 				
-				for(int j=1; j< allS.size(); j++){
+				for(int j=0; j< allS.size(); j++){
 					
 					subject = new PosTag(null,null);
 					mainVerb = new PosTag(null,null);
@@ -412,19 +387,39 @@ public class AutoGrader {
 					}
 				}
 			}
-			
-			//System.out.println(mainVerb.getString());
-			//System.out.println(subject.getString());
-			
-			//evaluation 1b
-			if(mainVerb.getPartOfSpeech() == PartOfSpeech.VB);				
-			else if(PartOfSpeech.getPersonType(subject.getPartOfSpeech(),subject.getString())
-					!= PartOfSpeech.getPersonType(mainVerb.getPartOfSpeech(), mainVerb.getString())){
-				//System.out.println(mainVerb.getString());
-				//System.out.println(subject.getString());
-				berrorcount = berrorcount + 1;
+			else{
+				node = BFS(parse.get(i),PartOfSpeech.NP.toString());	
+				
+				if(node != null){
+					
+					tag = BFS(node,nouns);
+					
+					if(tag == null)
+						tag = BFS(node, pronouns);
+					
+					if(tag != null)
+						subject = new PosTag(tag.toString(), getPOS(tag.getType()));				
+				}
+					
+				node = BFS(parse.get(i),PartOfSpeech.VP.toString());
+				
+				if(node != null){
+					
+					tag = BFS(node,verbs);
+					
+					if(tag != null)
+						mainVerb = new PosTag(tag.toString(), getPOS(tag.getType()));				
+				}
+				
+				//evaluation 1b
+				if(mainVerb.getPartOfSpeech() == PartOfSpeech.VB);				
+				else if(PartOfSpeech.getPersonType(subject.getPartOfSpeech(),subject.getString())
+						!= PartOfSpeech.getPersonType(mainVerb.getPartOfSpeech(), mainVerb.getString())){
+					//System.out.println(mainVerb.getString());
+					//System.out.println(subject.getString());
+					berrorcount = berrorcount + 1;
+				}
 			}
-			
 			
 			
 			//evaluation 1c
@@ -459,12 +454,48 @@ public class AutoGrader {
 				cerrorcount = cerrorcount + 1;
 			}
 		    
-			
-		    
-		    
 		}
+		
+		ArrayList<Rule> rules = new ArrayList<Rule>();
+		rules.add(new Rule(PartOfSpeech.PRP$,PartOfSpeech.JJ));
+		rules.add(new Rule(PartOfSpeech.VBP,PartOfSpeech.NN));
+		rules.add(new Rule(PartOfSpeech.NNS,PartOfSpeech.PRP$));
+		rules.add(new Rule(PartOfSpeech.NN,PartOfSpeech.PRP$));
+		rules.add(new Rule(PartOfSpeech.VBD,PartOfSpeech.DT));
+		rules.add(new Rule(PartOfSpeech.PRP,PartOfSpeech.PRP));
+		rules.add(new Rule(PartOfSpeech.PRP,PartOfSpeech.RB));
+		rules.add(new Rule(PartOfSpeech.PRP,PartOfSpeech.VBZ));
+		rules.add(new Rule(PartOfSpeech.PRP,PartOfSpeech.VBG));
+		rules.add(new Rule(PartOfSpeech.VBP,PartOfSpeech.VBP));
+		rules.add(new Rule(PartOfSpeech.PRP$,PartOfSpeech.VBG));
+		rules.add(new Rule(PartOfSpeech.VBD,PartOfSpeech.VBG));
+		rules.add(new Rule(PartOfSpeech.VBG,PartOfSpeech.VBZ));
+		rules.add(new Rule(PartOfSpeech.PRP,PartOfSpeech.IN));
+	
+		for(int p=0; p<essay.getPosTags().size();p++){
+			
+			if(essay.getPosTags().get(p).get(0).getPartOfSpeech() == PartOfSpeech.VB ||
+					essay.getPosTags().get(p).get(0).getPartOfSpeech() == PartOfSpeech.VBD ||
+					essay.getPosTags().get(p).get(0).getPartOfSpeech() == PartOfSpeech.VBG ||
+					essay.getPosTags().get(p).get(0).getPartOfSpeech() == PartOfSpeech.VBN ||
+					essay.getPosTags().get(p).get(0).getPartOfSpeech() == PartOfSpeech.VBP ||
+					essay.getPosTags().get(p).get(0).getPartOfSpeech() == PartOfSpeech.VBZ)
+				aerrorcount = aerrorcount + 1;
+			
+			for(int q=0; q<essay.getPosTags().get(p).size()-1;q++){
+				
+				for(int a=0; a<rules.size(); a++){
+					if(essay.getPosTags().get(p).get(q).getPartOfSpeech() == rules.get(a).getPos1() &&
+							essay.getPosTags().get(p).get(q+1).getPartOfSpeech() == rules.get(a).getPos2())
+						aerrorcount = aerrorcount + 1;
+
+				}
+			}
+		}
+		
 		essay.getEssayScore().setSubjectVerbAgreementScore(essay.getEssayScore().computeScore(berrorcount,sCount));
 		essay.getEssayScore().setVerbUsageScore(essay.getEssayScore().computeScore(cerrorcount,allVerbs.size()));
+		essay.getEssayScore().setWordOrderScore(essay.getEssayScore().computeScore(aerrorcount,sCount));
 		//System.out.println(berrorcount + "/" + sCount);
 	}
 		
