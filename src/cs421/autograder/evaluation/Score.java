@@ -124,17 +124,49 @@ public class Score {
 		return Math.round(finalScore * 2.0f)/2.0f;
 	}		
 	
-	public int computeScore(int error, int total){
+	public int computeScore1b(int error, int total){
 		
 		float score = (error/(float)total);		
 		
 		if(score >= 0.85)
 			return 1;
-		else if(score < 0.85 && score >= 0.7)
+		else if(score < 0.85 && score >= 0.6)
 			return 2;
-		else if(score < 0.7 && score >= 0.4)
+		else if(score < 0.6 && score >= 0.4)
 			return 3; 
 		else if(score < 0.4 && score >= 0.2)
+			return 4; 
+		else 
+			return 5;
+	}
+	
+	public int computeScore1a(int error, int total){
+		
+		float score = (error/(float)total);		
+		
+		if(score >= 0.95)
+			return 1;
+		else if(score < 0.95 && score >= 0.75)
+			return 2;
+		else if(score < 0.75 && score >= 0.55)
+			return 3; 
+		else if(score < 0.55 && score >= 0.35)
+			return 4; 
+		else 
+			return 5;
+	}
+	
+	public int computeScore1c(int error, int total){
+		
+		float score = (error/(float)total);		
+		
+		if(score >= 0.90)
+			return 1;
+		else if(score < 0.90 && score >= 0.7)
+			return 2;
+		else if(score < 0.7 && score >= 0.5)
+			return 3; 
+		else if(score < 0.5 && score >= 0.3)
 			return 4; 
 		else 
 			return 5;

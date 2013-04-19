@@ -201,6 +201,7 @@ public class AutoGrader {
 		}
 		
 		length = (lines > verbs)?(lines > sentencebreaks)?(lines):(sentencebreaks):(verbs > sentencebreaks)?(verbs):(sentencebreaks);
+		essay.setLength(length);
 		
 		if(length >= 6)
 			essay.getEssayScore().setEssayLengthScore(5);
@@ -419,6 +420,8 @@ public class AutoGrader {
 					//System.out.println(subject.getString());
 					berrorcount = berrorcount + 1;
 				}
+				/*else if(PartOfSpeech.getNumberType(subject.getPartOfSpeech(),subject.getString())
+						!= PartOfSpeech.getNumberType(mainVerb.getPartOfSpeech(), mainVerb.getString())){*/
 			}
 			
 			
@@ -458,12 +461,14 @@ public class AutoGrader {
 		
 		ArrayList<Rule> rules = new ArrayList<Rule>();
 		rules.add(new Rule(PartOfSpeech.PRP$,PartOfSpeech.JJ));
+		rules.add(new Rule(PartOfSpeech.PRP,PartOfSpeech.JJ));
 		rules.add(new Rule(PartOfSpeech.VBP,PartOfSpeech.NN));
 		rules.add(new Rule(PartOfSpeech.NNS,PartOfSpeech.PRP$));
 		rules.add(new Rule(PartOfSpeech.NN,PartOfSpeech.PRP$));
 		rules.add(new Rule(PartOfSpeech.VBD,PartOfSpeech.DT));
 		rules.add(new Rule(PartOfSpeech.PRP,PartOfSpeech.PRP));
 		rules.add(new Rule(PartOfSpeech.PRP,PartOfSpeech.RB));
+		rules.add(new Rule(PartOfSpeech.PRP,PartOfSpeech.VB));
 		rules.add(new Rule(PartOfSpeech.PRP,PartOfSpeech.VBZ));
 		rules.add(new Rule(PartOfSpeech.PRP,PartOfSpeech.VBG));
 		rules.add(new Rule(PartOfSpeech.VBP,PartOfSpeech.VBP));
@@ -471,6 +476,12 @@ public class AutoGrader {
 		rules.add(new Rule(PartOfSpeech.VBD,PartOfSpeech.VBG));
 		rules.add(new Rule(PartOfSpeech.VBG,PartOfSpeech.VBZ));
 		rules.add(new Rule(PartOfSpeech.PRP,PartOfSpeech.IN));
+		rules.add(new Rule(PartOfSpeech.NN,PartOfSpeech.NNP));
+		rules.add(new Rule(PartOfSpeech.NNP,PartOfSpeech.NNP));
+		rules.add(new Rule(PartOfSpeech.NNP,PartOfSpeech.PRP));
+		rules.add(new Rule(PartOfSpeech.VBZ,PartOfSpeech.NN));
+		rules.add(new Rule(PartOfSpeech.NN,PartOfSpeech.PRP));
+		rules.add(new Rule(PartOfSpeech.NNS,PartOfSpeech.PRP));
 	
 		for(int p=0; p<essay.getPosTags().size();p++){
 			
@@ -493,9 +504,9 @@ public class AutoGrader {
 			}
 		}
 		
-		essay.getEssayScore().setSubjectVerbAgreementScore(essay.getEssayScore().computeScore(berrorcount,sCount));
-		essay.getEssayScore().setVerbUsageScore(essay.getEssayScore().computeScore(cerrorcount,allVerbs.size()));
-		essay.getEssayScore().setWordOrderScore(essay.getEssayScore().computeScore(aerrorcount,sCount));
+		essay.getEssayScore().setSubjectVerbAgreementScore(essay.getEssayScore().computeScore1b(berrorcount,sCount));
+		essay.getEssayScore().setVerbUsageScore(essay.getEssayScore().computeScore1c(cerrorcount,allVerbs.size()));
+		essay.getEssayScore().setWordOrderScore(essay.getEssayScore().computeScore1a(aerrorcount,essay.getLength()));
 		//System.out.println(berrorcount + "/" + sCount);
 	}
 		
