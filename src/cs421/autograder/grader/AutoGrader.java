@@ -307,38 +307,24 @@ public class AutoGrader {
 	
 	public void gradeSyntax(Essay essay) {
 		
-		ArrayList<Parse> parse = essay.getParsedSentences();	
-		
 		PosTag subject = new PosTag(null,null);
 		PosTag mainVerb = new PosTag(null,null);
 		Parse node;
-		Parse tag;
-		int sCount = parse.size();
+		Parse tag;		
 		int berrorcount = 0;
 		int cerrorcount = 0;
 		int aerrorcount = 0;
+		
 		ArrayList<Parse> allS = new ArrayList<Parse>();
-		
-		ArrayList<String> nouns = new ArrayList<String>();
-		nouns.add(PartOfSpeech.NN.toString());
-		nouns.add(PartOfSpeech.NNP.toString());
-		nouns.add(PartOfSpeech.NNPS.toString());
-		nouns.add(PartOfSpeech.NNS.toString());
-		
-		ArrayList<String> pronouns = new ArrayList<String>();
-		pronouns.add(PartOfSpeech.PRP.toString());
-		pronouns.add(PartOfSpeech.PRP$.toString());
-		
-		ArrayList<String> verbs = new ArrayList<String>();		
-		verbs.add(PartOfSpeech.VB.toString());
-		verbs.add(PartOfSpeech.VBD.toString());
-		verbs.add(PartOfSpeech.VBG.toString());
-		verbs.add(PartOfSpeech.VBN.toString());
-		verbs.add(PartOfSpeech.VBP.toString());
-		verbs.add(PartOfSpeech.VBZ.toString());
-		
 		ArrayList<Parse> allVerbs = new ArrayList<Parse>();
+		ArrayList<Parse> parse = essay.getParsedSentences();	
 		
+		int sCount = parse.size();
+		
+		ArrayList<String> nouns = PartOfSpeech.getNounTypes();		
+		ArrayList<String> pronouns = PartOfSpeech.getPronounTypes();		
+		ArrayList<String> verbs = PartOfSpeech.getVerbTypes();			
+				
 		for(int i=0; i<parse.size();i++){	
 			
 			subject = new PosTag(null,null);
@@ -459,30 +445,8 @@ public class AutoGrader {
 		    
 		}
 		
-		ArrayList<Rule> rules = new ArrayList<Rule>();
-		rules.add(new Rule(PartOfSpeech.PRP$,PartOfSpeech.JJ));
-		rules.add(new Rule(PartOfSpeech.PRP,PartOfSpeech.JJ));
-		rules.add(new Rule(PartOfSpeech.VBP,PartOfSpeech.NN));
-		rules.add(new Rule(PartOfSpeech.NNS,PartOfSpeech.PRP$));
-		rules.add(new Rule(PartOfSpeech.NN,PartOfSpeech.PRP$));
-		rules.add(new Rule(PartOfSpeech.VBD,PartOfSpeech.DT));
-		rules.add(new Rule(PartOfSpeech.PRP,PartOfSpeech.PRP));
-		rules.add(new Rule(PartOfSpeech.PRP,PartOfSpeech.RB));
-		rules.add(new Rule(PartOfSpeech.PRP,PartOfSpeech.VB));
-		rules.add(new Rule(PartOfSpeech.PRP,PartOfSpeech.VBZ));
-		rules.add(new Rule(PartOfSpeech.PRP,PartOfSpeech.VBG));
-		rules.add(new Rule(PartOfSpeech.VBP,PartOfSpeech.VBP));
-		rules.add(new Rule(PartOfSpeech.PRP$,PartOfSpeech.VBG));
-		rules.add(new Rule(PartOfSpeech.VBD,PartOfSpeech.VBG));
-		rules.add(new Rule(PartOfSpeech.VBG,PartOfSpeech.VBZ));
-		rules.add(new Rule(PartOfSpeech.PRP,PartOfSpeech.IN));
-		rules.add(new Rule(PartOfSpeech.NN,PartOfSpeech.NNP));
-		rules.add(new Rule(PartOfSpeech.NNP,PartOfSpeech.NNP));
-		rules.add(new Rule(PartOfSpeech.NNP,PartOfSpeech.PRP));
-		rules.add(new Rule(PartOfSpeech.VBZ,PartOfSpeech.NN));
-		rules.add(new Rule(PartOfSpeech.NN,PartOfSpeech.PRP));
-		rules.add(new Rule(PartOfSpeech.NNS,PartOfSpeech.PRP));
-	
+		ArrayList<Rule> rules = Rule.getSyntaxRules();
+			
 		for(int p=0; p<essay.getPosTags().size();p++){
 			
 			if(essay.getPosTags().get(p).get(0).getPartOfSpeech() == PartOfSpeech.VB ||
@@ -507,7 +471,15 @@ public class AutoGrader {
 		essay.getEssayScore().setSubjectVerbAgreementScore(essay.getEssayScore().computeScore1b(berrorcount,sCount));
 		essay.getEssayScore().setVerbUsageScore(essay.getEssayScore().computeScore1c(cerrorcount,allVerbs.size()));
 		essay.getEssayScore().setWordOrderScore(essay.getEssayScore().computeScore1a(aerrorcount,essay.getLength()));
-		//System.out.println(berrorcount + "/" + sCount);
+		
+	}
+	
+	public PosTag getSubject(){
+		
+	}
+	
+	public PosTag getMainVerb(){
+		
 	}
 		
 	public Parse BFS(Parse graph,String searchText){

@@ -1,5 +1,7 @@
 package cs421.autograder.grader;
 
+import java.util.ArrayList;
+
 public enum PartOfSpeech {
 	
 	//Penn TreeBank Part-Of-Speech Tags
@@ -141,5 +143,38 @@ public enum PartOfSpeech {
     	
     	//if(pos == PartOfSpeech.) //TODO
     	return null;
+    }
+    
+    public static ArrayList<String> getNounTypes(){
+    	
+    	ArrayList<String> nouns = new ArrayList<String>();
+		nouns.add(PartOfSpeech.NN.toString());
+		nouns.add(PartOfSpeech.NNP.toString());
+		nouns.add(PartOfSpeech.NNPS.toString());
+		nouns.add(PartOfSpeech.NNS.toString());
+		
+		return nouns;
+    }
+    
+    public static ArrayList<String> getPronounTypes(){
+    	
+    	ArrayList<String> pronouns = new ArrayList<String>();
+		pronouns.add(PartOfSpeech.PRP.toString());
+		pronouns.add(PartOfSpeech.PRP$.toString());
+		
+		return pronouns;
+    }
+    
+    public static ArrayList<String> getVerbTypes(){
+    	
+    	ArrayList<String> verbs = new ArrayList<String>();		
+		verbs.add(PartOfSpeech.VB.toString());
+		verbs.add(PartOfSpeech.VBD.toString());
+		verbs.add(PartOfSpeech.VBG.toString());
+		verbs.add(PartOfSpeech.VBN.toString());
+		verbs.add(PartOfSpeech.VBP.toString());
+		verbs.add(PartOfSpeech.VBZ.toString());
+		
+		return verbs;
     }
 }
