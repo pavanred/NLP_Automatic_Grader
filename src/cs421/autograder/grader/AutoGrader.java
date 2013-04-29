@@ -1,8 +1,12 @@
 package cs421.autograder.grader;
 
+import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+
 import edu.stanford.nlp.tagger.maxent.MaxentTagger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -314,6 +318,7 @@ public class AutoGrader {
 		int berrorcount = 0;
 		int cerrorcount = 0;
 		int aerrorcount = 0;
+		//int derrorcount = 0;
 		
 		ArrayList<Parse> allS = new ArrayList<Parse>();
 		ArrayList<Parse> allVerbs = new ArrayList<Parse>();
@@ -442,9 +447,20 @@ public class AutoGrader {
 			else{
 				cerrorcount = cerrorcount + 1;
 			}
+			
+			
+			//evaluation 1d
+			
+			//if there exists  subject, object and main verb.
+			// if there is a "because", check if there is a SBAR
+			//
+			/*if(BFS(parse.get(i), PartOfSpeech.SBAR.toString()) != null){
+				parse.get(i).show();
+			}*/
 		    
 		}
 		
+		//evaluation 1a
 		ArrayList<Rule> rules = Rule.getSyntaxRules();
 			
 		for(int p=0; p<essay.getPosTags().size();p++){
@@ -468,20 +484,13 @@ public class AutoGrader {
 			}
 		}
 		
+		
 		essay.getEssayScore().setSubjectVerbAgreementScore(essay.getEssayScore().computeScore1b(berrorcount,sCount));
 		essay.getEssayScore().setVerbUsageScore(essay.getEssayScore().computeScore1c(cerrorcount,allVerbs.size()));
 		essay.getEssayScore().setWordOrderScore(essay.getEssayScore().computeScore1a(aerrorcount,essay.getLength()));
 		
 	}
-	
-	public PosTag getSubject(){
-		
-	}
-	
-	public PosTag getMainVerb(){
-		
-	}
-		
+			
 	public Parse BFS(Parse graph,String searchText){
 		
 		Queue<Parse> queue = new LinkedList<Parse>();
@@ -575,4 +584,65 @@ public class AutoGrader {
 		
 		return null;
 	}
+
+	public void gradeTopicCoherence(Essay essay) {
+		int b2ErrorCount=0;
+		
+		
+		ArrayList<String> commonNounList= new ArrayList<String>();
+		
+		ArrayList<String> commonNounTypes= new ArrayList<String>();
+		commonNounTypes.add(PartOfSpeech.NN.toString());
+		commonNounTypes.add(PartOfSpeech.NNS.toString());
+
+		ArrayList<Parse> parse = essay.getParsedSentences();	
+
+		ArrayList<Parse> allCommonNouns = new ArrayList<Parse>();
+
+		for(int i=0; i<parse.size();i++){
+			
+			allCommonNouns=getAllBFS(parse.get(i),commonNounTypes);
+			for(int j=0;j<allCommonNouns.size();j++){
+				commonNounList.add(allCommonNouns.get(j).toString());
+				}
+			}
+		ArrayList<String> storeWordList = new ArrayList<String>();
+		try {
+			String wordListDirPath = System.getProperty("user.dir") + "/Autobiography list/autobiography.txt";
+			FileInputStream fstream = new FileInputStream(wordListDirPath);
+			// Get the words from file
+			DataInputStream in = new DataInputStream(fstream);
+			BufferedReader br = new BufferedReader(new InputStreamReader(in));
+			String strLine;
+			//Read File Line By Line
+			while ((strLine = br.readLine()) != null) {
+				storeWordList.add(strLine);
+				}
+		in.close();
+		}
+		catch (Exception e) {
+			//Catch exception if any
+			System.err.println("Error: " + e.getMessage());
+			} 
+		 
+		//Search for common nouns in file
+		for (String key :commonNounList) {
+		    if (!storeWordList.contains(key)) {
+		        b2ErrorCount++;
+		        }
+		    }
+
+		/*//evaluate number nouns to be matched and rate accordingly
+		if(!count==commonNounsList.size() && commonNounsList.size()>=essay.getLength()){//if all NN are macthed with common noun related to autobiography
+		2berrorcount=0;
+		}
+		if(count != commonNounsList.size() && commonNounsList.size()>essay.getLength()){//some NN are macthed with common noun related to autobiography
+		2berrorcount=(nouns.size()-count)/noun.size();
+		}
+
+		if(commonNounsList.size()){//some NN are less than the essay length 
+		2berrorcount=(nouns.size()-essay.getLength())/noun.size();
+		*/
+		essay.getEssayScore().setTopicAdherenceScore(essay.getEssayScore().computeScore2b(b2ErrorCount,commonNounList.size()));
+		}
 }
