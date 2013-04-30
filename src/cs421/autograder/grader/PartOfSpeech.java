@@ -54,7 +54,9 @@ public enum PartOfSpeech {
 	
 	NP("Noun Phrase"),
 	VP("Verb Phrase"),
-	S("Sentence");
+	S("Sentence"),
+	SBAR("Sentence fragement"),
+	TOP("Root element");
 	
 	private PartOfSpeech(final String description) {
         this.Description = description;

@@ -313,12 +313,15 @@ public class AutoGrader {
 		
 		PosTag subject = new PosTag(null,null);
 		PosTag mainVerb = new PosTag(null,null);
+		PosTag object = new PosTag(null,null);
 		Parse node;
 		Parse tag;		
+		Parse top;
 		int berrorcount = 0;
 		int cerrorcount = 0;
 		int aerrorcount = 0;
-		//int derrorcount = 0;
+		int derrorcount = 0;
+		int dtotalcount = 0;
 		
 		ArrayList<Parse> allS = new ArrayList<Parse>();
 		ArrayList<Parse> allVerbs = new ArrayList<Parse>();
@@ -334,6 +337,7 @@ public class AutoGrader {
 			
 			subject = new PosTag(null,null);
 			mainVerb = new PosTag(null,null);
+			object = new PosTag(null,null);
 			//parse.get(i).show();
 			
 			allS = getAllBFS(parse.get(i),PartOfSpeech.S.toString());
@@ -342,11 +346,13 @@ public class AutoGrader {
 				
 				for(int j=0; j< allS.size(); j++){
 					
+					dtotalcount = dtotalcount + 1; //subject,verb,object
 					subject = new PosTag(null,null);
 					mainVerb = new PosTag(null,null);
+					object = new PosTag(null,null);
 					//parse.get(i).show();
 					
-					node = BFS(parse.get(i),PartOfSpeech.NP.toString());	
+					node = BFS(allS.get(j),PartOfSpeech.NP.toString());	
 								
 					if(node != null){
 						
@@ -359,15 +365,20 @@ public class AutoGrader {
 							subject = new PosTag(tag.toString(), getPOS(tag.getType()));				
 					}
 						
-					node = BFS(parse.get(i),PartOfSpeech.VP.toString());
+					node = BFS(allS.get(j),PartOfSpeech.VP.toString());
 					
 					if(node != null){
 						
 						tag = BFS(node,verbs);
 						
 						if(tag != null)
-							mainVerb = new PosTag(tag.toString(), getPOS(tag.getType()));				
-					}		
+							mainVerb = new PosTag(tag.toString(), getPOS(tag.getType()));	
+						
+						tag = BFS(node,nouns);
+						
+						if(tag != null)
+							object = new PosTag(tag.toString(), getPOS(tag.getType()));
+					}	
 					
 					if(mainVerb.getPartOfSpeech() == PartOfSpeech.VB);				
 					else if(PartOfSpeech.getPersonType(subject.getPartOfSpeech(),subject.getString())
@@ -377,9 +388,24 @@ public class AutoGrader {
 						berrorcount = berrorcount + 1;
 						sCount = sCount + 1;
 					}
+					
+					//1d
+
+					if(subject.getString() == null){						
+						derrorcount = derrorcount + 1;
+					}
+					if(mainVerb.getString() == null){						
+						derrorcount = derrorcount + 1;
+					}
+					if(object.getString() == null){						
+						derrorcount = derrorcount + 1;
+					}	
 				}
 			}
 			else{
+				
+				dtotalcount = dtotalcount + 1; //subject,verb,object
+				
 				node = BFS(parse.get(i),PartOfSpeech.NP.toString());	
 				
 				if(node != null){
@@ -400,7 +426,12 @@ public class AutoGrader {
 					tag = BFS(node,verbs);
 					
 					if(tag != null)
-						mainVerb = new PosTag(tag.toString(), getPOS(tag.getType()));				
+						mainVerb = new PosTag(tag.toString(), getPOS(tag.getType()));	
+					
+					tag = BFS(node,nouns);
+					
+					if(tag != null)
+						object = new PosTag(tag.toString(), getPOS(tag.getType()));
 				}
 				
 				//evaluation 1b
@@ -413,9 +444,19 @@ public class AutoGrader {
 				}
 				/*else if(PartOfSpeech.getNumberType(subject.getPartOfSpeech(),subject.getString())
 						!= PartOfSpeech.getNumberType(mainVerb.getPartOfSpeech(), mainVerb.getString())){*/
+				
+				//1d
+				if(subject.getString() == null){					
+					derrorcount = derrorcount + 1;
+				}
+				if(mainVerb.getString() == null){					
+					derrorcount = derrorcount + 1;
+				}
+				if(object.getString() == null){					
+					derrorcount = derrorcount + 1;
+				}				
 			}
-			
-			
+						
 			//evaluation 1c
 			allVerbs = getAllBFS(parse.get(i), verbs);
 			int[] tensecounts = new int[4];
@@ -448,17 +489,22 @@ public class AutoGrader {
 				cerrorcount = cerrorcount + 1;
 			}
 			
+			//1d
+			top =  BFS(parse.get(i), PartOfSpeech.TOP.toString());
+			if(top != null){
+				for(Parse child : top.getChildren()){
+					dtotalcount = dtotalcount + 1;
+					if(!child.getType().equals(PartOfSpeech.S.toString())){
+						//System.out.println("e " + child.toString() + "-" + child.getType());
+						derrorcount = derrorcount + 1;
+					}
+				}
+			}
 			
-			//evaluation 1d
-			
-			//if there exists  subject, object and main verb.
-			// if there is a "because", check if there is a SBAR
-			//
-			/*if(BFS(parse.get(i), PartOfSpeech.SBAR.toString()) != null){
-				parse.get(i).show();
-			}*/
-		    
+			if(top.toString().contains("because") && BFS(parse.get(i), PartOfSpeech.SBAR.toString()) != null)
+				derrorcount = derrorcount + 1;			
 		}
+		
 		
 		//evaluation 1a
 		ArrayList<Rule> rules = Rule.getSyntaxRules();
@@ -484,10 +530,11 @@ public class AutoGrader {
 			}
 		}
 		
-		
+		//System.out.println(derrorcount / (float)dtotalcount);		
 		essay.getEssayScore().setSubjectVerbAgreementScore(essay.getEssayScore().computeScore1b(berrorcount,sCount));
 		essay.getEssayScore().setVerbUsageScore(essay.getEssayScore().computeScore1c(cerrorcount,allVerbs.size()));
 		essay.getEssayScore().setWordOrderScore(essay.getEssayScore().computeScore1a(aerrorcount,essay.getLength()));
+		essay.getEssayScore().setSentenceFormationScore(essay.getEssayScore().computeScore1d(derrorcount, dtotalcount));
 		
 	}
 			
@@ -604,8 +651,9 @@ public class AutoGrader {
 			allCommonNouns=getAllBFS(parse.get(i),commonNounTypes);
 			for(int j=0;j<allCommonNouns.size();j++){
 				commonNounList.add(allCommonNouns.get(j).toString());
-				}
 			}
+		}
+		
 		ArrayList<String> storeWordList = new ArrayList<String>();
 		try {
 			String wordListDirPath = System.getProperty("user.dir") + "/Autobiography list/autobiography.txt";
@@ -617,20 +665,20 @@ public class AutoGrader {
 			//Read File Line By Line
 			while ((strLine = br.readLine()) != null) {
 				storeWordList.add(strLine);
-				}
+			}
 		in.close();
 		}
 		catch (Exception e) {
 			//Catch exception if any
 			System.err.println("Error: " + e.getMessage());
-			} 
+		} 
 		 
 		//Search for common nouns in file
 		for (String key :commonNounList) {
 		    if (!storeWordList.contains(key)) {
 		        b2ErrorCount++;
-		        }
 		    }
+		}
 
 		/*//evaluate number nouns to be matched and rate accordingly
 		if(!count==commonNounsList.size() && commonNounsList.size()>=essay.getLength()){//if all NN are macthed with common noun related to autobiography
@@ -643,6 +691,7 @@ public class AutoGrader {
 		if(commonNounsList.size()){//some NN are less than the essay length 
 		2berrorcount=(nouns.size()-essay.getLength())/noun.size();
 		*/
+		System.out.println(b2ErrorCount / (float)commonNounList.size());
 		essay.getEssayScore().setTopicAdherenceScore(essay.getEssayScore().computeScore2b(b2ErrorCount,commonNounList.size()));
 		}
 }

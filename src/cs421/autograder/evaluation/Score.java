@@ -178,13 +178,31 @@ public class Score {
 		
 		if(score == 1)
 			return 0;
-		else if(score<1 && score >=0.90)
+		else if(score <1 && score >=0.90)
 			return 1;
 		else if(score < 0.90 && score >= 0.80)
 			return 2;
 		else if(score < 0.80 && score >= 0.65)
 			return 3; 
 		else if(score < 0.65 && score >= 0.35)
+			return 4; 
+		else 
+			return 5;
+	}
+
+	public int computeScore1d(int error, int total){
+		
+		float score = (error/(float)total);		
+		
+		if(score >= 0.4)
+			return 0;
+		else if(score < 0.4 && score >= 0.3)
+			return 1;
+		else if(score < 0.3 && score >= 0.2)
+			return 2; 
+		else if(score < 0.2 && score >= 0.15)
+			return 3; 
+		else if(score < 0.15 && score >= 0.08)
 			return 4; 
 		else 
 			return 5;

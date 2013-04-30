@@ -1,12 +1,8 @@
-
-name sister      husband   children   baby    work     school         home    languages        family   father     mother    brother     classes      country   things      life     years      end       mom    brothers      cousins    student   son      player   basketball   computer   week   daughter    girl    son    life supervisor    dogs     factory   glasses     sisters      parents      marriage    people     job   child   class    hospital   boys      girl   grandson    year   friend   telephone   neighbor   dog    people   television    money    Tomorrow    time    pizza    months      boyfriend   
-
 adoption
 adoptive father
 adoptive mother
 ancestor
 aunt
-
 bachelor
 birth mother
 blood relative
@@ -16,7 +12,6 @@ brother
 brotherhood
 brotherly
 brother-in-law
-
 care-giver
 child
 childhood
@@ -25,7 +20,6 @@ clan
 close-knit
 connection
 cousin
-
 dad
 daddy
 daughter
@@ -33,7 +27,6 @@ daughter-in-law
 descendant
 devoted
 divorce
-
 eligible
 engaged
 engagement
@@ -42,7 +35,6 @@ ex
 ex husband
 ex wife
 extended family
-
 faithful
 family
 family tree
@@ -66,7 +58,6 @@ foster child
 foster parent
 fraternal
 fraternal twin
-
 genealogy
 grampa
 gramps
@@ -89,7 +80,6 @@ great-aunt
 great-uncle
 groom
 grownup
-
 half-brother
 half-sister
 heir
@@ -101,26 +91,21 @@ history
 home
 household
 husband
-
 identical twin
 inherit
 inheritance
 infant
 infancy
 in-law
-
 juvenile
-
 kin
 kindred
 kinfolk
 kinship
 kith
-
 lineage
 love
 loyalty
-
 ma
 maiden name
 mama
@@ -139,7 +124,6 @@ mother-in-law
 Mr.
 Mrs.
 Ms.
-
 nana
 natal
 nephew
@@ -150,10 +134,8 @@ nuclear family
 nuptial
 nurture
 name
-
 offspring
 orphan
-
 pa
 papa
 parent
@@ -164,16 +146,13 @@ pop
 posterity
 progenitor
 progeny
-
 quadruplets
 quads
 quints
 quintuplets
-
 related
 relations
 relative
-
 second cousin
 senior
 separation
@@ -198,7 +177,6 @@ stepsister
 stepson
 support
 surrogate mother
-
 tribe
 triplets
 trust
@@ -206,15 +184,56 @@ trustworthy
 twin brother
 twin sister
 twins
-
 uncle
-
 value
-
 wed
 wedding
 wedlock
 wife
-Y
 youngster
 youth
+name
+sister
+husband
+children
+baby
+work
+school
+home
+languages
+family
+father
+mother
+brother
+country
+things
+life
+years
+end
+mom
+brothers
+cousins
+student
+son
+player
+daughter
+girl
+son
+life
+supervisor
+dogs
+sisters
+parents
+marriage
+people
+job
+child
+boys
+girl
+grandson
+year
+friend
+neighbor
+dog
+people
+boyfriend
