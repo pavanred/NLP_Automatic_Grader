@@ -666,7 +666,7 @@ public class AutoGrader {
 			while ((strLine = br.readLine()) != null) {
 				storeWordList.add(strLine);
 			}
-		in.close();
+			in.close();
 		}
 		catch (Exception e) {
 			//Catch exception if any
@@ -680,18 +680,45 @@ public class AutoGrader {
 		    }
 		}
 
-		/*//evaluate number nouns to be matched and rate accordingly
-		if(!count==commonNounsList.size() && commonNounsList.size()>=essay.getLength()){//if all NN are macthed with common noun related to autobiography
-		2berrorcount=0;
-		}
-		if(count != commonNounsList.size() && commonNounsList.size()>essay.getLength()){//some NN are macthed with common noun related to autobiography
-		2berrorcount=(nouns.size()-count)/noun.size();
+		//System.out.println(b2ErrorCount / (float)commonNounList.size());
+		essay.getEssayScore().setTopicAdherenceScore(essay.getEssayScore().computeScore2b(b2ErrorCount,commonNounList.size()));
+		
+		//2a
+		//get all pronouns in the sentence
+		ArrayList<String> pronounTypes = PartOfSpeech.getPronounTypes();	
+		ArrayList<Parse> allPronouns;
+		int errorcount_2a = 0;
+		int bonus_2a = 0;
+		
+		for(int i=0; i<parse.size();i++){
+			
+			allPronouns = getAllBFS(parse.get(i),pronounTypes);
+			
+			for(int j=0;j<allPronouns.size();j++){
+				
+				PosTag pronoun = new PosTag(allPronouns.get(j).toString(), getPOS(allPronouns.get(j).getType()));
+				
+				if(PartOfSpeech.getPersonType(pronoun.getPartOfSpeech(), pronoun.getString()) == Person.THIRD){
+					//bonus
+					bonus_2a = bonus_2a + 1;
+				}
+				else if(PartOfSpeech.getPersonType(pronoun.getPartOfSpeech(), pronoun.getString()) == Person.SECOND){
+					//penalize and remove from list
+					errorcount_2a = errorcount_2a + 1;
+					allPronouns.remove(j);
+				}				
+				else {
+					//remove from list
+					allPronouns.remove(j);
+				}
+			}
+			
+			//queue of entities and their generation - 1,2,3....
+			//remove from queue if generation > 2
+			//if antecedent, remove entity from queue, re-add to queue with generation 1
+			//if pronoun without antecedent, penalise
+			//ambiguous antecedent, less errornous 
 		}
 
-		if(commonNounsList.size()){//some NN are less than the essay length 
-		2berrorcount=(nouns.size()-essay.getLength())/noun.size();
-		*/
-		System.out.println(b2ErrorCount / (float)commonNounList.size());
-		essay.getEssayScore().setTopicAdherenceScore(essay.getEssayScore().computeScore2b(b2ErrorCount,commonNounList.size()));
-		}
+	}
 }

@@ -68,7 +68,7 @@ public enum PartOfSpeech {
         return this.Description;
     }
     
-    public static Person getPersonType(PartOfSpeech pos){    	
+    /*public static Person getPersonType(PartOfSpeech pos){    	
     	
     	//word = word.toLowerCase();
     	
@@ -78,31 +78,37 @@ public enum PartOfSpeech {
     	
     	else if(pos == PartOfSpeech.VBP)
     		return Person.NON_THIRD;
-    	//TODO pronouns
-    	/*else if(pos == PartOfSpeech.PRP && (word == "i" || word == "me"))
-    		
-    	else if(pos == PartOfSpeech.PRP$ && (word == "i" || word == "me"))*/
-    		
+    	    		
     	else
     		return Person.NA;
-    }
+    }*/
     
     public static Person getPersonType(PartOfSpeech pos, String word){    	
     	
     	if(pos == null || word == null)
     		return Person.NA;
     	
+    	
+    	//first - i, me , my, mine, we, us
+    	//second - you, your,  
+    	//third he,she,her,him,it,them,they,their
+    	
     	word = word.toLowerCase();
     	
     	if(pos == PartOfSpeech.VBZ || pos == PartOfSpeech.NN || pos == PartOfSpeech.NNP 
     			|| pos == PartOfSpeech.NNPS || pos == PartOfSpeech.NNS || word.equals("he") || word.equals("their")
-    			|| word.equals("they") || word.equals("she") || word.equals("his") || word.equals("him") || word.equals("her") || word.equals("it"))
-    		return Person.THIRD;
+    			|| word.equals("they") || word.equals("she") || word.equals("his") || word.equals("him") 
+    			|| word.equals("her") || word.equals("it") || word.equals("them"))
+    		return Person.THIRD;    	
     	
-    	else if(pos == PartOfSpeech.VBP || word.equals("my") || word.equals("i") || word.equals("i'm"))
-    		return Person.NON_THIRD;
-   		
-    	else
+    	else if(pos == PartOfSpeech.VBP || word.equals("my") || word.equals("i") || word.equals("i'm") 
+    			|| word.equals("me") || word.equals("we") || word.equals("mine") || word.equals("us"))
+    		return Person.FIRST;
+    	
+    	else if (word.equals("you")|| word.equals("your"))
+    		return Person.SECOND;
+    	
+    	else 
     		return Person.NA;
     }
     
