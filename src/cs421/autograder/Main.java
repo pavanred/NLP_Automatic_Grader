@@ -77,6 +77,8 @@ public class Main {
 			grader.gradeSyntax(essay);
 			
 			grader.gradeTopicCoherence(essay);
+			
+			grader.gradeTextCoherence(essay);
 							
 			outputfile.writeOutput(file.getName().replace(".txt", "") , essay.getEssayScore());			
 		}
