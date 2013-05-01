@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Stack;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import opennlp.tools.cmdline.parser.ParserTool;
 import opennlp.tools.parser.Parse;
@@ -699,8 +700,9 @@ public class AutoGrader {
 		
 		float errorcount_2a = 0;
 		int bonus_2a = 0;
+		int size = 0;
 		
-		Queue<EntityGen> entities = new LinkedList<EntityGen>();
+		ConcurrentLinkedQueue<EntityGen> entities = new ConcurrentLinkedQueue<EntityGen>();
 		
 		ArrayList<String> properNounTypes= new ArrayList<String>();
 		properNounTypes.add(PartOfSpeech.NNP.toString());
@@ -710,7 +712,9 @@ public class AutoGrader {
 			
 			allPronouns = getAllBFS(parse.get(i),pronounTypes);
 			allProperNouns = getAllBFS(parse.get(i), properNounTypes);
-									
+				
+			size = size + allPronouns.size();
+			
 			for(int j=0;j<allPronouns.size();j++){
 				
 				PosTag pronoun = new PosTag(allPronouns.get(j).toString(), getPOS(allPronouns.get(j).getType()));
@@ -738,16 +742,23 @@ public class AutoGrader {
 			
 			for(EntityGen eg : entities){
 				eg.setGeneration(eg.getGeneration() + 1);
-			}
+								
+				if(eg.getGeneration() > 2){					
+					entities.remove(eg);					
+				}				
+			}				
 			
-			if(!entities.isEmpty()){
-				
-				while(entities.peek().getGeneration() > 2){
-					entities.remove();
-				}			
-			}
 			for(Parse pn : allProperNouns){
-				entities.add(new EntityGen(pn.toString(), 0));
+				
+				for(EntityGen eg : entities){
+				
+					if(eg.getEntity().equals(pn.toString())){
+						//System.out.println("removing - " + eg.getEntity());
+						entities.remove(eg);						
+					}		
+				}
+				
+				entities.add(new EntityGen(pn.toString(), 0));		
 			}
 			
 			for(int j=0;j<allPronouns.size();j++){
@@ -762,18 +773,34 @@ public class AutoGrader {
 					errorcount_2a = errorcount_2a + (1/(float)antecedents.size());
 				}
 				
-				EntityGen candidateAntecedent = antecedents.firstElement();
-				 
-				entities.remove(candidateAntecedent);
+				EntityGen candidateAntecedent = null;
+				
+				if(antecedents.size() > 0){
+					candidateAntecedent = antecedents.firstElement();
 					
-				EntityGen neweg = new EntityGen(candidateAntecedent.getEntity(),0); //current
-				entities.add(neweg);
+					entities.remove(candidateAntecedent);
+
+					EntityGen neweg = new EntityGen(candidateAntecedent.getEntity(),0); //current
+					entities.add(neweg);
+				}					
+			}		
+			
+			/*for(EntityGen eg : entities){
+				System.out.print(eg.getEntity() + "-" + eg.getGeneration() + " <- ");
 			}
+			
+			System.out.print("\n");*/
 		}
+		
+		//float total = bonus_2a/(float)parse.size() - errorcount_2a/(float)parse.size();
+		//System.out.println(size);
+		//System.out.println(bonus_2a);
+		//System.out.println(errorcount_2a);
+		essay.getEssayScore().setCoherenceScore(essay.getEssayScore().computeScore2a(errorcount_2a, size + bonus_2a));
 
 	}
 	
-	private Stack<EntityGen> hasAntecedent(Parse parse, Queue<EntityGen> entities) {
+	private Stack<EntityGen> hasAntecedent(Parse parse, ConcurrentLinkedQueue<EntityGen> entities) {
 		//TODO - gender of entities ????
 		
 		Stack<EntityGen> en = new Stack<EntityGen>();

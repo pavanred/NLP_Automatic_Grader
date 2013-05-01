@@ -205,4 +205,23 @@ public class Score {
 		else 
 			return 5;
 	}
+
+	public int computeScore2a(float error, int size) {
+		
+		float score = (error/(float)size);	
+		
+		System.out.println(score);
+		if(score >= 0.4)
+			return 0;
+		else if(score < 0.4 && score >= 0.3)
+			return 1;
+		else if(score < 0.3 && score >= 0.2)
+			return 2; 
+		else if(score < 0.2 && score >= 0.15)
+			return 3; 
+		else if(score < 0.15 && score >= 0.08)
+			return 4; 
+		else 
+			return 5;
+	}
 }
