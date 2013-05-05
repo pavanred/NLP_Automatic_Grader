@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import edu.smu.tspell.wordnet.*;
+import edu.smu.tspell.wordnet.impl.file.synset.NounReferenceSynset;
 import edu.stanford.nlp.tagger.maxent.MaxentTagger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,6 +16,8 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Stack;
 import java.util.concurrent.ConcurrentLinkedQueue;
+
+import net.didion.jwnl.data.Word;
 
 import opennlp.tools.cmdline.parser.ParserTool;
 import opennlp.tools.parser.Parse;
@@ -32,7 +36,7 @@ public class AutoGrader {
 	private POSTaggerME opennlpTagger = null;	
 	private ParserModel pmodel = null; 
 	private InputStream parsermodelIn = null;
-	private InputStream smodel = null;
+	private InputStream smodel = null;	
 		
 	public ArrayList<PosTag> getStanfordPosTags(String text){
 	
@@ -675,19 +679,144 @@ public class AutoGrader {
 			//Catch exception if any
 			System.err.println("Error: " + e.getMessage());
 		} 
-		 
+		 		
 		//Search for common nouns in file
-		for (String key :commonNounList) {
-		    if (!storeWordList.contains(key)) {
-		        b2ErrorCount++;
-		    }
+		for (String key :commonNounList) {			
+			
+			key = key.replaceAll("[^A-Za-z]+", "").trim().toLowerCase();
+			
+		    if (!isTopicCoherent(storeWordList,key)){ 
+		    	
+		    	b2ErrorCount++;
+		    }		    
 		}
-
+		
 		//System.out.println(b2ErrorCount / (float)commonNounList.size());
 		essay.getEssayScore().setTopicAdherenceScore(essay.getEssayScore().computeScore2b(b2ErrorCount,commonNounList.size()));
 		
 	}
 	
+	private boolean isTopicCoherent(ArrayList<String> list, String text) {
+		
+		//regular expression to handle aprostrophes and period.
+		/*String wordnet_dir = System.getProperty("user.dir") + "/Models/wordnet3.0/";
+		System.setProperty("wordnet.database.dir", wordnet_dir);
+		WordNetDatabase wn = WordNetDatabase.getFileInstance();
+		
+		Synset[] synsets = wn.getSynsets("relative",SynsetType.NOUN);
+		NounSynset nounSynset = (NounSynset) synsets[0];
+		
+		for (NounSynset hypernym : nounSynset.getHypernyms()) {
+             //System.out.println(hypernym.);
+			System.out.println();
+         }*/
+		
+		text = text.replaceAll("[^A-Za-z]+", "");
+		
+		//return !(hypernymCheck(text));		//list.contains(text) || hypernymCheck(text) ||
+		return !(list.contains(text));
+	}
+
+	private boolean hypernymCheck(String text) {
+		
+		String wordnet_dir = System.getProperty("user.dir") + "/Models/wordnet3.0/";
+		System.setProperty("wordnet.database.dir", wordnet_dir);
+		WordNetDatabase wn = WordNetDatabase.getFileInstance();
+		boolean error = true;
+		
+		Synset[] textSynsets = wn.getSynsets(text,SynsetType.NOUN);
+		
+		if(textSynsets.length <= 0)
+			return error;
+				
+		NounSynset nounSynset = (NounSynset) textSynsets[0];
+		
+		if(nounSynset.getHypernyms().length <= 0)
+			return error;
+		
+		String[] wordforms = nounSynset.getHypernyms()[0].getWordForms(); 
+			
+		if(wordforms.length <= 0)
+			return error;
+		
+		while(!wordforms[0].equals("entity")){
+			
+			String wordform = wordforms[0];
+			
+			if(wordform.equals("person") || wordform.equals("family")){
+				error = false;
+				break;
+			}
+			
+			textSynsets = wn.getSynsets(wordform,SynsetType.NOUN);			
+			
+			if(textSynsets.length <= 0)
+				break;
+			
+			nounSynset = (NounSynset) textSynsets[0];
+			
+			if(nounSynset.getHypernyms().length <= 0)
+				break;
+			
+			wordforms = nounSynset.getHypernyms()[0].getWordForms();
+				
+			if(wordforms.length <= 0)
+				break;
+		}	
+		
+		return error;
+	}
+
+	private boolean meronymCheck(String text) {
+		
+		String wordnet_dir = System.getProperty("user.dir") + "/Models/wordnet3.0/";
+		System.setProperty("wordnet.database.dir", wordnet_dir);
+		WordNetDatabase wn = WordNetDatabase.getFileInstance();
+		boolean error = true;
+		
+		Synset[] textSynsets = wn.getSynsets(text,SynsetType.NOUN);
+		
+		if(textSynsets.length <= 0)
+			return error;
+		
+		NounSynset nounSynset = (NounSynset) textSynsets[0];	
+		
+		if(nounSynset.getMemberMeronyms().length <= 0)
+			return error;
+		
+		String[] wordforms = nounSynset.getPartMeronyms()[0].getWordForms();
+		
+		if(wordforms.length <= 0)
+			return error;
+		
+		while(!wordforms[0].equals("entity")){
+			
+			String wordform = wordforms[0];
+			
+			if(wordform.equals("person") || wordform.equals("family")){
+				error = false;
+				break;
+			}
+			
+			textSynsets = wn.getSynsets(wordform,SynsetType.NOUN);
+			
+			if(textSynsets.length <= 0)
+				break;
+			
+			nounSynset = (NounSynset) textSynsets[0];
+		
+			if(nounSynset.getMemberMeronyms().length <= 0)
+				break;
+				
+			wordforms = nounSynset.getPartMeronyms()[0].getWordForms();
+				
+			if(wordforms.length <= 0)
+				break;
+		}
+		
+		return error;
+	}
+
 	public void gradeTextCoherence(Essay essay){
 
 		//2a		
