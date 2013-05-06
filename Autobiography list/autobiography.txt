@@ -55,5 +55,3 @@ grandparent
 grandparents
 student
 students
-school
-schools

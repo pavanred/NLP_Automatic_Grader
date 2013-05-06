@@ -68,26 +68,10 @@ public enum PartOfSpeech {
         return this.Description;
     }
     
-    /*public static Person getPersonType(PartOfSpeech pos){    	
-    	
-    	//word = word.toLowerCase();
-    	
-    	if(pos == PartOfSpeech.VBZ || pos == PartOfSpeech.NN || pos == PartOfSpeech.NNP 
-    			|| pos == PartOfSpeech.NNPS || pos == PartOfSpeech.NNS)
-    		return Person.THIRD;
-    	
-    	else if(pos == PartOfSpeech.VBP)
-    		return Person.NON_THIRD;
-    	    		
-    	else
-    		return Person.NA;
-    }*/
-    
     public static Person getPersonType(PartOfSpeech pos, String word){    	
     	
     	if(pos == null || word == null)
-    		return Person.NA;
-    	
+    		return Person.NA;    	
     	
     	//first - i, me , my, mine, we, us
     	//second - you, your,  
@@ -120,20 +104,36 @@ public enum PartOfSpeech {
     		return Case.NON_POSSESSIVE;
     }
     
-    public static Number getNumberType(PartOfSpeech pos){
+    public static Number getNumberType(PartOfSpeech pos, String word){
     	
     	if(pos == PartOfSpeech.NN || pos == PartOfSpeech.NNP || 
-    			pos == PartOfSpeech.VBP || pos == PartOfSpeech.VBZ)
+    			pos == PartOfSpeech.VBP || pos == PartOfSpeech.VBZ || getEntityNumber(word) == 1)
     		return Number.SINGULAR;
     	
-    	else if(pos == PartOfSpeech.NNS || pos == PartOfSpeech.NNPS)
+    	else if(pos == PartOfSpeech.NNS || pos == PartOfSpeech.NNPS || getEntityNumber(word) == 2)
     		return Number.PLURAL;
     	
     	else 
     		return Number.NA;    	
     }
     
-    public static Tense getTenseType(PartOfSpeech pos){
+    private static int getEntityNumber(String word) {
+		
+    	int number = 1; //single default
+    	
+    	ArrayList<EntityGen> entites = EntityGen.getEntityList();
+    	
+		for(int i=0; i<entites.size(); i++){
+			if(entites.get(i).getEntity().equals(word)){
+				number = entites.get(i).getNumber();
+				break;
+			}
+		}
+		
+		return number;
+	}
+
+	public static Tense getTenseType(PartOfSpeech pos){
     	
     	if(pos == PartOfSpeech.VBD)
     		return Tense.PAST;
@@ -147,13 +147,47 @@ public enum PartOfSpeech {
     		return Tense.NA;    		
     }
     
-    public static Gender getGenderType(PartOfSpeech pos){
+    public static Gender getGenderType(String word){
     	
-    	//if(pos == PartOfSpeech.) //TODO
-    	return null;
+    	Gender gen;
+    	
+    	ArrayList<String> male = new ArrayList<String>();
+    	male.add("he");male.add("his");male.add("him");
+    	
+    	ArrayList<String> female = new ArrayList<String>();
+    	female.add("she");female.add("her");
+    	
+    	if(male.contains(word) || getEntityGender(word) == 1){
+    		gen = Gender.MALE;
+    	}
+    	else if(female.contains(word) || getEntityGender(word) == 0){
+    		gen = Gender.FEMALE;
+    	}
+    	else
+    		gen = Gender.NA;
+    		
+    	return gen;
     }
     
-    public static ArrayList<String> getNounTypes(){
+    
+    
+    private static int getEntityGender(String word) {
+		
+    	int gender = 2; //true - male, false = female
+    	
+    	ArrayList<EntityGen> entites = EntityGen.getEntityList();
+    	
+		for(int i=0; i<entites.size(); i++){
+			if(entites.get(i).getEntity().equals(word)){
+				gender = entites.get(i).getGender();
+				break;
+			}
+		}
+		
+		return gender;
+	}
+
+	public static ArrayList<String> getNounTypes(){
     	
     	ArrayList<String> nouns = new ArrayList<String>();
 		nouns.add(PartOfSpeech.NN.toString());

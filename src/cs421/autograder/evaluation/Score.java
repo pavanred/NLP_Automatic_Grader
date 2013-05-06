@@ -177,33 +177,33 @@ public class Score {
 		float score = (error/(float)total);	
 		//System.out.println(score);
 
-		if(score <= 0.1)
+		if(score >= 0.65)
 			return 0;
-		else if(score > 0.10  && score <= 0.30)
-			return 1;
-		else if(score > 0.30 && score <= 0.45)
-			return 2;
-		else if(score > 0.45 && score <= 0.65)
+		else if(score < 0.65 && score >= 0.55)
+			return 1; 
+		else if(score < 0.55 && score >= 0.45)
+			return 2; 
+		else if(score < 0.45 && score >= 0.35)
 			return 3; 
-		else if(score > 0.65 && score <= 0.75)
+		else if(score < 0.35 && score >= 0.25)
 			return 4; 
 		else 
-			return 5;
+			return 5;		
 	}
 
 	public int computeScore1d(int error, int total){
 		
 		float score = (error/(float)total);		
-		
-		if(score >= 0.4)
+		//System.out.println(score);
+		if(score >= 0.65)
 			return 0;
-		else if(score < 0.4 && score >= 0.3)
+		else if(score < 0.65 && score >= 0.55)
 			return 1;
-		else if(score < 0.3 && score >= 0.2)
+		else if(score < 0.55 && score >= 0.45)
 			return 2; 
-		else if(score < 0.2 && score >= 0.15)
+		else if(score < 0.45 && score >= 0.25)
 			return 3; 
-		else if(score < 0.15 && score >= 0.08)
+		else if(score < 0.25 && score >= 0.15)
 			return 4; 
 		else 
 			return 5;
@@ -214,15 +214,14 @@ public class Score {
 		float score = (error/(float)size);	
 		
 		//System.out.println(score);
-		if(score >= 0.4)
-			return 0;
-		else if(score < 0.4 && score >= 0.3)
+		
+		if(score >= 0.30)
 			return 1;
-		else if(score < 0.3 && score >= 0.2)
+		else if(score < 0.30 && score >= 0.25)
 			return 2; 
-		else if(score < 0.2 && score >= 0.15)
+		else if(score < 0.25 && score >= 0.15)
 			return 3; 
-		else if(score < 0.15 && score >= 0.08)
+		else if(score < 0.15 && score >= 0.10)
 			return 4; 
 		else 
 			return 5;

@@ -8,7 +8,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import edu.smu.tspell.wordnet.*;
-import edu.smu.tspell.wordnet.impl.file.synset.NounReferenceSynset;
 import edu.stanford.nlp.tagger.maxent.MaxentTagger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,8 +15,6 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Stack;
 import java.util.concurrent.ConcurrentLinkedQueue;
-
-import net.didion.jwnl.data.Word;
 
 import opennlp.tools.cmdline.parser.ParserTool;
 import opennlp.tools.parser.Parse;
@@ -401,9 +398,9 @@ public class AutoGrader {
 					if(subject.getString() == null){						
 						derrorcount = derrorcount + 1;
 					}
-					if(mainVerb.getString() == null){						
-						derrorcount = derrorcount + 1;
-					}
+					//if(mainVerb.getString() == null){						
+					//	derrorcount = derrorcount + 1;
+					//}
 					if(object.getString() == null){						
 						derrorcount = derrorcount + 1;
 					}	
@@ -456,9 +453,9 @@ public class AutoGrader {
 				if(subject.getString() == null){					
 					derrorcount = derrorcount + 1;
 				}
-				if(mainVerb.getString() == null){					
-					derrorcount = derrorcount + 1;
-				}
+				//if(mainVerb.getString() == null){					
+				//	derrorcount = derrorcount + 1;
+				//}
 				if(object.getString() == null){					
 					derrorcount = derrorcount + 1;
 				}				
@@ -494,6 +491,7 @@ public class AutoGrader {
 			}
 			else{
 				cerrorcount = cerrorcount + 1;
+				derrorcount = derrorcount + 1;
 			}
 			
 			//1d
@@ -685,7 +683,7 @@ public class AutoGrader {
 			
 			key = key.replaceAll("[^A-Za-z]+", "").trim().toLowerCase();
 			
-		    if (!isTopicCoherent(storeWordList,key)){ 
+		    if (isTopicCoherent(storeWordList,key)){ 
 		    	
 		    	b2ErrorCount++;
 		    }		    
@@ -712,9 +710,9 @@ public class AutoGrader {
          }*/
 		
 		text = text.replaceAll("[^A-Za-z]+", "");
-		
-		//return !(hypernymCheck(text));		//list.contains(text) || hypernymCheck(text) ||
-		return !(list.contains(text));
+		//list.contains(text) || !hypernymCheck(text) || 
+		//return !(hypernymCheck(text));		//
+		return !(list.contains(text) || !hypernymCheck(text) || !meronymCheck(text));
 	}
 
 	private boolean hypernymCheck(String text) {
@@ -723,6 +721,7 @@ public class AutoGrader {
 		System.setProperty("wordnet.database.dir", wordnet_dir);
 		WordNetDatabase wn = WordNetDatabase.getFileInstance();
 		boolean error = true;
+		int counter = 0;
 		
 		Synset[] textSynsets = wn.getSynsets(text,SynsetType.NOUN);
 		
@@ -735,14 +734,19 @@ public class AutoGrader {
 			return error;
 		
 		String[] wordforms = nounSynset.getHypernyms()[0].getWordForms(); 
-			
+		
 		if(wordforms.length <= 0)
 			return error;
 		
 		while(!wordforms[0].equals("entity")){
 			
-			String wordform = wordforms[0];
+			counter = counter + 1;
 			
+			if(counter >= 6)
+				break;
+			
+			String wordform = wordforms[0];
+			//System.out.println(wordform);	
 			if(wordform.equals("person") || wordform.equals("family")){
 				error = false;
 				break;
@@ -772,48 +776,43 @@ public class AutoGrader {
 		String wordnet_dir = System.getProperty("user.dir") + "/Models/wordnet3.0/";
 		System.setProperty("wordnet.database.dir", wordnet_dir);
 		WordNetDatabase wn = WordNetDatabase.getFileInstance();
+		ArrayList<String> allmeronyms = new ArrayList<String>();
 		boolean error = true;
 		
-		Synset[] textSynsets = wn.getSynsets(text,SynsetType.NOUN);
+		Synset[] textSynsets = wn.getSynsets("person",SynsetType.NOUN);
 		
 		if(textSynsets.length <= 0)
 			return error;
 		
 		NounSynset nounSynset = (NounSynset) textSynsets[0];	
 		
-		if(nounSynset.getMemberMeronyms().length <= 0)
+		if(nounSynset.getPartMeronyms().length <= 0)
 			return error;
 		
-		String[] wordforms = nounSynset.getPartMeronyms()[0].getWordForms();
+		allmeronyms.addAll(Arrays.asList(nounSynset.getPartMeronyms()[0].getWordForms()));
 		
-		if(wordforms.length <= 0)
+		textSynsets = wn.getSynsets("family",SynsetType.NOUN);
+		
+		if(textSynsets.length <= 0)
 			return error;
 		
-		while(!wordforms[0].equals("entity")){
+		nounSynset = (NounSynset) textSynsets[0];	
+		
+		if(nounSynset.getPartMeronyms().length <= 0)
+			return error;
+		
+		allmeronyms.addAll(Arrays.asList(nounSynset.getPartMeronyms()[0].getWordForms()));
+		
+		for(String word : allmeronyms){
 			
-			String wordform = wordforms[0];
-			
-			if(wordform.equals("person") || wordform.equals("family")){
+			if(text.equals(word)){
+				//System.out.println(text);
+				//System.out.println(word);
 				error = false;
 				break;
 			}
-			
-			textSynsets = wn.getSynsets(wordform,SynsetType.NOUN);
-			
-			if(textSynsets.length <= 0)
-				break;
-			
-			nounSynset = (NounSynset) textSynsets[0];
-		
-			if(nounSynset.getMemberMeronyms().length <= 0)
-				break;
-				
-			wordforms = nounSynset.getPartMeronyms()[0].getWordForms();
-				
-			if(wordforms.length <= 0)
-				break;
-		}
-		
+		}		
+		//System.out.println("--");
 		return error;
 	}
 
@@ -825,27 +824,33 @@ public class AutoGrader {
 		//get all pronouns in the sentence
 		ArrayList<String> pronounTypes = PartOfSpeech.getPronounTypes();	
 		ArrayList<Parse> allPronouns;
-		ArrayList<Parse> allProperNouns;
+		ArrayList<Parse> allNouns;
 		
 		float errorcount_2a = 0;
 		int bonus_2a = 0;
 		int size = 0;
+		boolean conjunction = false;
 		
 		ConcurrentLinkedQueue<EntityGen> entities = new ConcurrentLinkedQueue<EntityGen>();
 		
-		ArrayList<String> properNounTypes= new ArrayList<String>();
-		properNounTypes.add(PartOfSpeech.NNP.toString());
-		properNounTypes.add(PartOfSpeech.NNPS.toString());
+		ArrayList<String> nounTypes= new ArrayList<String>();
+		//nounTypes.add(PartOfSpeech.NNP.toString());
+		//nounTypes.add(PartOfSpeech.NNPS.toString());
+		nounTypes.add(PartOfSpeech.NN.toString());
+		nounTypes.add(PartOfSpeech.NNS.toString());
 			
 		for(int i=0; i<parse.size();i++){
 			
 			allPronouns = getAllBFS(parse.get(i),pronounTypes);
-			allProperNouns = getAllBFS(parse.get(i), properNounTypes);
+			allNouns = getAllBFS(parse.get(i), nounTypes);
+			
+			if(BFS(parse.get(i),PartOfSpeech.CC.toString()) != null)
+				conjunction = true;
 				
 			size = size + allPronouns.size();
 			
 			for(int j=0;j<allPronouns.size();j++){
-				
+												
 				PosTag pronoun = new PosTag(allPronouns.get(j).toString(), getPOS(allPronouns.get(j).getType()));
 				
 				if(PartOfSpeech.getPersonType(pronoun.getPartOfSpeech(), pronoun.getString()) == Person.THIRD){
@@ -877,7 +882,7 @@ public class AutoGrader {
 				}				
 			}				
 			
-			for(Parse pn : allProperNouns){
+			for(Parse pn : allNouns){
 				
 				for(EntityGen eg : entities){
 				
@@ -893,7 +898,7 @@ public class AutoGrader {
 			for(int j=0;j<allPronouns.size();j++){
 
 				Stack<EntityGen> antecedents = new Stack<EntityGen>();
-				antecedents = hasAntecedent(allPronouns.get(j),entities);
+				antecedents = hasAntecedent(allPronouns.get(j),entities, conjunction);
 				
 				if(antecedents.isEmpty()){
 					errorcount_2a = errorcount_2a + 1;
@@ -929,13 +934,25 @@ public class AutoGrader {
 
 	}
 	
-	private Stack<EntityGen> hasAntecedent(Parse parse, ConcurrentLinkedQueue<EntityGen> entities) {
-		//TODO - gender of entities ????
+	private Stack<EntityGen> hasAntecedent(Parse parse, ConcurrentLinkedQueue<EntityGen> entities, boolean conjuction) {
 		
 		Stack<EntityGen> en = new Stack<EntityGen>();
 		
 		for(EntityGen eg : entities){
-			en.add(eg);			
+						
+			if(PartOfSpeech.getGenderType(parse.toString()) == PartOfSpeech.getGenderType(eg.getEntity())
+					&& PartOfSpeech.getNumberType(getPOS(parse.getType()), "") 
+						== PartOfSpeech.getNumberType(null, eg.getEntity())){ 
+								
+				en.add(eg);
+			}
+			
+			if(PartOfSpeech.getNumberType(getPOS(parse.getType()), "") 
+					!= PartOfSpeech.getNumberType(null, eg.getEntity()) && conjuction){
+				if(!en.contains(eg))
+					en.add(eg);
+			}
+			
 		}
 		
 		return en;
